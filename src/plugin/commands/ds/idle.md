@@ -1,0 +1,112 @@
+---
+description: Enter idle mode - continuously refine loop plans until /ds:wake
+allowed-tools:
+  - Read
+  - Write
+  - Glob
+  - Grep
+  - Task
+  - Bash
+---
+
+<objective>
+Enter idle mode with a specified model. Continuously iterate on loop plans, adding details, finding new directions, and creating new loops until stopped with /ds:wake.
+</objective>
+
+<usage>
+/ds:idle [model]
+
+Models:
+  haiku  - Fastest, cheapest (default)
+  sonnet - Balanced
+  opus   - Most capable
+</usage>
+
+<behavior>
+Idle mode is a CONTINUOUS process that keeps running until /ds:wake is called.
+
+Each iteration:
+1. Reviews the current loop plan
+2. Picks one loop to expand with more detail
+3. OR discovers a new loop to add
+4. OR finds new directions/approaches
+5. Updates the loop plan folder
+6. Logs the iteration
+7. Waits briefly, then starts next iteration
+
+The human can check progress anytime with /ds:status.
+To stop: /ds:wake
+</behavior>
+
+<execution>
+1. Parse model argument (default: haiku)
+
+2. Check if already in idle mode:
+   - Read .dreamstate/idle.state
+   - If active, report "Already in idle mode. Use /ds:wake to stop."
+
+3. Create or continue loop plan:
+   - If no active plan, create new: .dreamstate/loop_plans/{timestamp}-idle-session/
+   - If resuming, use existing plan
+
+4. Initialize idle state:
+   ```json
+   {
+     "active": true,
+     "startedAt": "{timestamp}",
+     "model": "{model}",
+     "iterations": 0,
+     "currentLoopPlan": "{path}",
+     "lastIteration": null,
+     "tokensUsed": 0
+   }
+   ```
+   Write to .dreamstate/idle.state
+
+5. Start iteration loop:
+   ```
+   WHILE idle.state.active == true:
+     - Read current loop plan
+     - Spawn ds-idle-planner with model={model}
+     - Agent returns: what was refined/added
+     - Increment iterations
+     - Update idle.state
+     - Log to {loop_plan}/ITERATIONS.md
+     - Check if /ds:wake was called (idle.state.active == false)
+     - Brief pause (5 seconds)
+   ```
+
+6. Report idle mode started:
+   ```
+   Idle Mode Active
+   ━━━━━━━━━━━━━━━━
+   Model: {model}
+   Loop Plan: {path}
+
+   Idle mode will continuously refine loop plans.
+   Check progress: /ds:status
+   Stop with: /ds:wake
+   ```
+</execution>
+
+<iteration-log>
+Append to {loop_plan}/ITERATIONS.md after each iteration:
+
+```markdown
+## Iteration {N}
+
+Time: {timestamp}
+Model: {model}
+
+### Action
+{What the idle planner did this iteration}
+
+### Changes
+- {file}: {what changed}
+
+### Next Direction
+{What the planner will focus on next}
+
+---
+```
+</iteration-log>

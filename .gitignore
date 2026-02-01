@@ -4,7 +4,7 @@ node_modules/
 # Build output
 dist/
 
-# Dreamstate runtime files
+# Dreamstate runtime files (daemon state, IPC, loops, docs)
 .dreamstate/
 
 # IDE
@@ -19,3 +19,9 @@ Thumbs.db
 
 # Reference implementation (optional - remove if you want to track it)
 # get-shit-done/
+
+# Plan drafts (user-specific)
+draft_plan.txt
+plan_draft.md
+
+templates/

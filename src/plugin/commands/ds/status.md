@@ -1,49 +1,59 @@
 ---
-description: Show dreamstate daemon status
+description: Show dreamstate daemon and idle mode status
 allowed-tools:
   - Read
 ---
 
 <objective>
-Display the current status of the dreamstate daemon.
+Display the current status of the dreamstate daemon and idle mode.
 </objective>
 
 <instructions>
-1. Read `.dreamstate/daemon.status`
-2. If file doesn't exist or is stale (>10s old), daemon is not running
+1. Read `.dreamstate/daemon.status` for daemon state
+2. Read `.dreamstate/idle.state` for idle mode state
 3. Display formatted status information
 </instructions>
 
 <execution>
-Read the file `.dreamstate/daemon.status` and parse as JSON.
+1. Read `.dreamstate/daemon.status` and parse as JSON
+   - Check if `lastActivity` is within last 10 seconds
+   - If stale, daemon is stopped
 
-Check if `lastActivity` timestamp is within the last 10 seconds. If older, the daemon has stopped.
-
-Format uptime as human-readable (e.g., "2 minutes, 34 seconds" or "1 hour, 5 minutes").
+2. Read `.dreamstate/idle.state` and parse as JSON
+   - Check if `active` is true
+   - Show iteration count and current loop plan
 </execution>
 
 <output-format>
-When running:
 ```
-Dreamstate Daemon Status
-========================
-Status:     Running
+Dreamstate Status
+━━━━━━━━━━━━━━━━━
+
+Daemon:     {Running|Stopped}
 PID:        {pid}
 Uptime:     {formatted uptime}
-Started:    {startedAt}
-Last Active: {lastActivity}
-
-Watching:   {patterns joined with ", "}
 Tasks:      {tasksProcessed} processed
+
+Idle Mode:  {Active|Inactive}
+Model:      {model if active}
+Iterations: {count if active}
+Loop Plan:  {path if active}
+
+Watching:   {patterns}
+
+Commands:
+  /ds:idle [model]  - Enter idle mode
+  /ds:wake          - Stop idle mode
+  /ds:loop          - Run a loop
 ```
 
-When not running:
+When daemon not running:
 ```
-Dreamstate Daemon Status
-========================
-Status: Not running
+Dreamstate Status
+━━━━━━━━━━━━━━━━━
 
-Start the daemon with:
-  npm run daemon
+Daemon: Not running
+
+Start with: npm run daemon
 ```
 </output-format>

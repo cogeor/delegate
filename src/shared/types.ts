@@ -43,3 +43,55 @@ export interface Config {
     ignore: string[];
   };
 }
+
+export interface LoopStatus {
+  started: string;
+  phase: 'planning' | 'implementing' | 'testing' | 'complete' | 'failed';
+  updated: string;
+  tasks: {
+    total: number;
+    completed: number;
+  };
+  notes: string[];
+}
+
+export interface ProjectState {
+  lastUpdated: string;
+  currentFocus: string;
+  recentActivity: Array<{
+    date: string;
+    description: string;
+  }>;
+  openItems: string[];
+  proposedNextSteps: string[];
+}
+
+export interface LoopDraft {
+  id: string;
+  name: string;
+  description: string;
+  dependencies: string[];  // IDs of loops that must complete first
+  estimatedScope: 'small' | 'medium' | 'large';
+  files: string[];         // Files likely to be affected
+  inspiration?: string;    // Template or external repo that inspired this
+}
+
+export interface LoopPlan {
+  created: string;
+  overview: string;
+  projectContext: string;
+  loops: LoopDraft[];
+  executionOrder: string[][]; // Groups of loop IDs that can run in parallel
+}
+
+export interface IdleState {
+  active: boolean;
+  startedAt: string | null;
+  model: string;
+  iterations: number;
+  currentLoopPlan: string | null;  // Path to active loop_plan folder
+  lastIteration: string | null;
+  tokenUsed: number;
+}
+
+export type IdleModel = 'haiku' | 'sonnet' | 'opus';

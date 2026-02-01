@@ -69,6 +69,52 @@ Expected output:
 |---------|-------------|
 | `/ds:ping` | Test daemon connectivity |
 | `/ds:status` | Show daemon status |
+| `/ds:loop` | Start plan/implement/test loop |
+| `/ds:reflect` | Trigger reflection mode |
+
+## Agents
+
+| Agent | Role |
+|-------|------|
+| `ds-coordinator` | Orchestrates the three-phase loop |
+| `ds-planner` | Creates detailed implementation plans from drafts |
+| `ds-executor` | Implements tasks from the plan |
+| `ds-tester` | Verifies implementation against plan |
+| `ds-reflector` | Updates docs and proposes next steps |
+
+## Workflow
+
+### Running a Loop
+
+1. Create a plan draft:
+```bash
+echo "Add user authentication with JWT tokens" > plan_draft.md
+```
+
+2. Run the loop:
+```
+/ds:loop
+```
+
+3. The coordinator will:
+   - Create timestamped folder: `.dreamstate/loops/20260201-143022-add-user-auth/`
+   - Run planning phase → `PLAN.md`
+   - Run implementation → code changes + `IMPLEMENTATION.md`
+   - Run testing → `TEST.md`
+   - Commit on success
+
+### Triggering Reflection
+
+```
+/ds:reflect
+```
+
+This runs the reflector agent which:
+- Analyzes recently changed files
+- Updates documentation in `.dreamstate/docs/`
+- Reviews recent loop artifacts
+- Updates `.dreamstate/STATE.md`
+- Proposes next steps in `.dreamstate/NEXT.md`
 
 ## How It Works
 
@@ -129,9 +175,10 @@ npm run install:claude
 ## Roadmap
 
 - [x] Phase 1: Daemon + ping test
-- [ ] Phase 2: File-save LLM triggers
-- [ ] Phase 3: Idle detection + reflection
-- [ ] Phase 4: Three-phase loop (plan/implement/test)
+- [x] Phase 2: Three-phase loop (plan/implement/test)
+- [x] Phase 3: Reflection mode (manual trigger)
+- [ ] Phase 4: File-save LLM triggers (@dreamstate markers)
+- [ ] Phase 5: Automatic idle detection
 
 ## License
 

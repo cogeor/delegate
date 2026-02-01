@@ -9,6 +9,7 @@ const projectRoot = join(__dirname, '..');
 
 const CLAUDE_DIR = join(homedir(), '.claude');
 const COMMANDS_DIR = join(CLAUDE_DIR, 'commands', 'ds');
+const AGENTS_DIR = join(CLAUDE_DIR, 'agents');
 
 // Colors for terminal output
 const green = '\x1b[32m';
@@ -62,9 +63,22 @@ function main(): void {
     console.log(`${yellow}⚠${reset} Commands directory not found: ${commandsSrc}`);
   }
 
+  // Copy agents
+  const agentsSrc = join(projectRoot, 'src', 'plugin', 'agents');
+  if (existsSync(agentsSrc)) {
+    ensureDir(AGENTS_DIR);
+    const agents = readdirSync(agentsSrc).filter(f => f.endsWith('.md'));
+    for (const agent of agents) {
+      copyFileSync(join(agentsSrc, agent), join(AGENTS_DIR, agent));
+    }
+    console.log(`${green}✓${reset} Installed ${agents.length} agents to ~/.claude/agents/`);
+  } else {
+    console.log(`${yellow}⚠${reset} Agents directory not found: ${agentsSrc}`);
+  }
+
   // List installed commands
   console.log('');
-  console.log('Available commands:');
+  console.log('Commands:');
   if (existsSync(COMMANDS_DIR)) {
     const commands = readdirSync(COMMANDS_DIR)
       .filter(f => f.endsWith('.md'))
@@ -74,11 +88,24 @@ function main(): void {
     }
   }
 
+  // List installed agents
   console.log('');
-  console.log('Next steps:');
-  console.log(`  1. Start the daemon: ${cyan}npm run daemon${reset}`);
-  console.log(`  2. In another terminal, run Claude Code`);
-  console.log(`  3. Test with: ${cyan}/ds:ping${reset}`);
+  console.log('Agents:');
+  if (existsSync(AGENTS_DIR)) {
+    const agents = readdirSync(AGENTS_DIR)
+      .filter(f => f.startsWith('ds-') && f.endsWith('.md'))
+      .map(f => f.replace('.md', ''));
+    for (const agent of agents) {
+      console.log(`  ${cyan}${agent}${reset}`);
+    }
+  }
+
+  console.log('');
+  console.log('Quick start:');
+  console.log(`  1. Start daemon:    ${cyan}npm run daemon${reset}`);
+  console.log(`  2. Test connection: ${cyan}/ds:ping${reset}`);
+  console.log(`  3. Plan future:     ${cyan}/ds:idle${reset}`);
+  console.log(`  4. Run a loop:      ${cyan}/ds:loop${reset}`);
   console.log('');
 }
 

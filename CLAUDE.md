@@ -22,10 +22,27 @@ npm run daemon
 
 # Install plugin to Claude Code
 npm run install:claude
-
-# Run tests
-npm test
 ```
+
+## Plugin Commands
+
+| Command | Description |
+|---------|-------------|
+| `/ds:ping` | Test daemon connectivity |
+| `/ds:status` | Show daemon and idle status |
+| `/ds:idle [model]` | Enter idle mode (haiku/sonnet/opus) |
+| `/ds:wake` | Stop idle mode, return control |
+| `/ds:loop [path]` | Start plan/implement/test loop |
+
+## Agents
+
+| Agent | Role |
+|-------|------|
+| `ds-coordinator` | Orchestrates loops |
+| `ds-planner` | Creates implementation plans |
+| `ds-executor` | Implements tasks |
+| `ds-tester` | Verifies implementation |
+| `ds-idle-planner` | Iteratively refines loop plans during idle |
 
 ## Architecture
 
