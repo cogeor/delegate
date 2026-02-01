@@ -6,7 +6,7 @@ allowed-tools:
   - Read
   - Write
   - Glob
-  - Grep
+# Grep excluded - focused on single file documentation
 ---
 
 # Dreamstate Documentation Generator Agent

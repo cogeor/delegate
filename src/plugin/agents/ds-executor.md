@@ -6,9 +6,8 @@ allowed-tools:
   - Read
   - Write
   - Edit
-  - Glob
-  - Grep
   - Bash
+# Glob/Grep intentionally excluded - trust the task spec
 ---
 
 # Dreamstate Executor Agent

@@ -7,8 +7,8 @@ allowed-tools:
   - Write
   - Glob
   - Grep
-  - Bash
   - WebSearch
+# Bash intentionally excluded - read-only planning mode
 ---
 
 # Dreamstate Idle Planner Agent
