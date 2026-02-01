@@ -98,18 +98,25 @@ To stop: /ds:wake
 
 6. Start iteration loop:
    ```
+   max_iterations = config.daemon.auto_idle.max_iterations (default 10)
+
    WHILE idle.state.active == true:
      - Read current loop plan
      - Read FOCUS.md if exists
+     - Read existing loop_plans/*/DRAFT.md for context (first 20 lines each)
      - Spawn ds-idle-planner with:
          model={model}
          prompt=See "Iteration Prompt Template" below
-     - Validate agent output has template_file_read field (warn if missing)
-     - Extract what was refined/added
+     - Agent appends ONE table row to ITERATIONS.md
      - Increment iterations
      - Update idle.state
-     - Log to {loop_plan}/ITERATIONS.md
      - Check if /ds:wake was called (idle.state.active == false)
+
+     - IF iterations >= max_iterations:
+         - Stop loop
+         - Output: "Reached {max_iterations} iterations. Run /ds:idle to continue with fresh context."
+         - Set idle.state.active = false
+
      - Brief pause (5 seconds)
    ```
 
@@ -131,53 +138,65 @@ To stop: /ds:wake
 When spawning ds-idle-planner, use this prompt structure:
 
 ```markdown
-# Idle Mode Iteration {N}
+# Idle Mode Iteration {N} of {max_iterations}
 
-## Step 1: Template Exploration (MANDATORY)
-Before any other work, explore templates:
-1. List files in .dreamstate/templates/
-2. Pick 1-2 files relevant to the current focus
-3. Read them completely
-4. Extract concrete patterns
+## Step 1: Read Previous Context (MANDATORY)
+Before any work, understand what exists:
+1. Read .dreamstate/loop_plans/*/DRAFT.md (first 20 lines each)
+2. Read .dreamstate/loops/*/STATUS.md for completed work
+3. Note what's been done to avoid duplicates
 
-You MUST populate these fields in your output:
-- template_file_read: {path to file you read}
-- template_insight: {specific pattern discovered}
+## Step 2: Template Exploration (MANDATORY)
+1. Pick 1-2 files from .dreamstate/templates/ relevant to focus
+2. Read them, extract concrete patterns
+3. This becomes your "Insight" column in the table
 
-## Step 2: Focus Direction
+## Step 3: Focus Direction
 {Contents of FOCUS.md if exists, otherwise "General exploration"}
 
-## Step 3: Task
-Based on template insights and focus, either:
+## Step 4: Task
+Based on previous context and template insights:
 - Expand an existing loop with more detail
-- Create a new loop based on discovered patterns
-- Update MISSION.md with insights
+- OR create a new loop based on discovered patterns
+- OR update MISSION.md with insights
+
+## Output: ONE Table Row
+Append exactly one row to ITERATIONS.md:
+| {N} | {time} | {action} | {target} | {insight} |
+
+No prose. No explanations. Just the table row.
 
 ## Loop Plan Location
 {path to current loop plan}
-
-## Output Requirements
-Return YAML with all required fields including template_file_read and template_insight.
 ```
 </iteration-prompt-template>
 
 <iteration-log>
-Append to {loop_plan}/ITERATIONS.md after each iteration:
+ITERATIONS.md uses compact table format:
 
 ```markdown
-## Iteration {N} | {time} | {model} | {action} | {target}
+# Idle Session: {session-id}
+Focus: {focus} | Model: {model} | Limit: {max_iterations}
 
-{summary} ({template_insight})
+## Previous Context
+- loop-01: {one-liner summary of what it does}
+- loop-02: {one-liner summary}
 
----
+## Iterations
+| # | Time | Action | Target | Insight |
+|---|------|--------|--------|---------|
+| 1 | 00:05 | discover | gsd-planner | 50% context budget rule |
+| 2 | 00:12 | research | daemon | token budget exists |
 ```
 
+Each iteration appends ONE row. No prose between rows.
+
 Fields:
-- `{N}`: Iteration number
-- `{time}`: Relative time (e.g., "00:30" from session start)
-- `{model}`: haiku/sonnet/opus
-- `{action}`: expand|reflect|research|discover|connect|refine
-- `{target}`: Loop ID or section name
-- `{summary}`: One sentence describing what was done
-- `{template_insight}`: Pattern discovered from template exploration
+- `{#}`: Iteration number
+- `{Time}`: MM:SS from session start
+- `{Action}`: discover|connect|refine|design|reflect|research
+- `{Target}`: Short identifier (loop-id, file, section)
+- `{Insight}`: Template pattern discovered (max 10 words)
+
+**Max 100 lines total.** If approaching limit, summarize older iterations.
 </iteration-log>

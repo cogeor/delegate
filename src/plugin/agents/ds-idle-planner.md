@@ -154,45 +154,83 @@ ELSE:
   → WebSearch for similar projects, find patterns
 ```
 
-## Output Format (CONCISE)
+## Output Format (COMPACT TABLE - MANDATORY)
 
-After each iteration, return EXACTLY this format for ITERATIONS.md:
+**You MUST append exactly ONE table row per iteration.** No prose, no verbose explanations.
+
+### ITERATIONS.md Structure
 
 ```markdown
-## Iteration {N} | {time} | {model} | {action} | {target}
+# Idle Session: {session-id}
+Focus: {focus} | Model: {model} | Limit: {max}
 
-{summary} ({template_insight})
+## Previous Context
+{one-liner per previous loop plan read}
 
----
+## Iterations
+| # | Time | Action | Target | Insight |
+|---|------|--------|--------|---------|
+| 1 | 00:05 | discover | gsd-planner | 50% context budget rule |
+| 2 | 00:12 | research | daemon | token budget implemented |
 ```
 
-**Fields:**
+### Your Output Per Iteration
+
+Append ONE row:
+```
+| {N} | {time} | {action} | {target} | {insight} |
+```
+
+**Fields (all required, all compact):**
 - `{N}` - Iteration number
-- `{time}` - Time since session start (HH:MM format)
-- `{model}` - Model used (haiku/sonnet/opus)
-- `{action}` - One of: discover|connect|refine|design|reflect|research
-- `{target}` - Loop ID, section name, or template file (short form)
-- `{summary}` - One sentence: what you did and why it matters
-- `{template_insight}` - One phrase: pattern discovered from templates
+- `{time}` - MM:SS from session start
+- `{action}` - discover|connect|refine|design|reflect|research
+- `{target}` - Short identifier (e.g., "gsd-planner", "loop-03", "MISSION")
+- `{insight}` - ONE phrase: what you learned (max 10 words)
 
 **Action Types:**
-- `discover` - Found a new pattern, gap, or opportunity
-- `connect` - Linked concepts, created relationships
-- `refine` - Improved existing content, fixed issues
-- `design` - Created new plans, architectures
-- `reflect` - Reviewed completed loops, assessed quality
-- `research` - Searched external sources, compared approaches
+- `discover` - Found pattern, gap, or opportunity
+- `connect` - Linked concepts
+- `refine` - Improved existing content
+- `design` - Created new plans
+- `reflect` - Reviewed completed loop
+- `research` - Searched external sources
 
-**Example:**
+### Before Each Iteration: Read Previous Context
+
+**MANDATORY:** Before doing work, read existing loop plans to understand what's been done:
+
+1. Read `.dreamstate/loop_plans/*/DRAFT.md` headers (first 20 lines each)
+2. Read `.dreamstate/loops/*/STATUS.md` to see completed work
+3. Add one-liner summaries to "Previous Context" section if not already there
+
+This prevents duplicate work and builds on previous discoveries.
+
+### Example Complete ITERATIONS.md
+
 ```markdown
-## Iteration 5 | 00:30 | haiku | expand | 01-core
+# Idle Session: 20260201-docs-context
+Focus: Documentation freshness | Model: haiku | Limit: 10
 
-Detailed daemon flow, added error handling paths (GSD: priority queue pattern for task scheduling)
+## Previous Context
+- 01-context-quality: context % tracking for loops (INVALID - subagents fresh)
+- 02-doc-freshness: pre-commit validator for docs sync
+- 03-verification: GSD verification workflow adaptation
 
----
+## Iterations
+| # | Time | Action | Target | Insight |
+|---|------|--------|--------|---------|
+| 1 | 00:05 | discover | gsd-planner | 50% context budget rule |
+| 2 | 00:12 | research | daemon | token budget exists, % missing |
+| 3 | 00:20 | analyze | docs | 8 discrepancies found |
+| 4 | 00:28 | design | loop-05 | idle context management plan |
 ```
 
-**Validation:** Template insight is required - iterations without template exploration are incomplete.
+**Validation:**
+- Each iteration = exactly one table row
+- Template insight required in every row
+- No paragraphs, no verbose summaries
+- Max 100 lines total in ITERATIONS.md
 
 ## Template Exploration Checklist
 
