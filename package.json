@@ -8,7 +8,8 @@
     "daemon": "tsx src/daemon/index.ts",
     "daemon:start": "tsx src/daemon/index.ts &",
     "install:claude": "tsx bin/install.ts",
-    "test": "tsx src/test/ping.test.ts"
+    "test": "tsx src/test/ping.test.ts",
+    "validate-docs": "tsx bin/validate-docs.ts"
   },
   "engines": {
     "node": ">=18.0.0"

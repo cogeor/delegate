@@ -46,7 +46,7 @@ Dreamstate uses a daemon + plugin architecture for spec-driven development. The 
 |-----------|---------|----------|
 | **Commands** | Slash commands (`/ds:*`) for user interaction | `src/plugin/commands/ds/` |
 | **Agents** | Specialized agents for planning, execution, testing | `src/plugin/agents/` |
-| **Hooks** | Session lifecycle hooks | `src/plugin/hooks/` |
+| **Hooks** | Session lifecycle hooks (SessionStart, UserPromptSubmit) | `bin/*.ts` |
 
 ## IPC Protocol
 
@@ -73,10 +73,15 @@ src/
 +-- plugin/
 |   +-- commands/ds/       # Slash commands
 |   +-- agents/            # Agent definitions
-|   +-- hooks/             # Lifecycle hooks
 +-- shared/
     +-- config.ts          # Shared configuration
     +-- types.ts           # Shared type definitions
+
+bin/
++-- daemon-hook.ts         # SessionStart hook (auto-starts daemon)
++-- prompt-hook.ts         # UserPromptSubmit hook (daemon requests)
++-- validate-docs.ts       # Pre-commit doc validation
++-- install.ts             # Plugin installer
 ```
 
 ## Agents
@@ -103,7 +108,8 @@ src/
     "auto_idle": {
       "enabled": false,
       "model": "haiku",
-      "max_iterations": 10
+      "max_iterations": 10,
+      "prompt": null
     }
   },
   "watch": {
@@ -112,8 +118,8 @@ src/
   },
   "docs": {
     "enabled": true,
-    "patterns": ["src/**/*.ts"],
-    "ignore": ["**/*.test.ts"]
+    "patterns": ["src/**/*.ts", "src/**/*.tsx"],
+    "ignore": ["**/*.test.ts", "**/*.spec.ts", "**/types.ts"]
   }
 }
 ```
