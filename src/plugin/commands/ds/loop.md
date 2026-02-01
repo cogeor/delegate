@@ -28,6 +28,8 @@ Modes:
 Options:
   --plan {path}   Path to loop plan folder (default: most recent in .dreamstate/loop_plans/)
   --all           Run all pending loops in dependency order
+  --parallel      Enable parallel execution for independent loops (default: true)
+  --sequential    Force sequential execution (disable parallelism)
   --dry-run       Show what would be executed without running
 </usage>
 
@@ -137,13 +139,18 @@ When running specific loops from a loop plan:
    - Build execution order (dependencies first)
    - Detect circular dependencies (error if found)
 
-5. **Execute loops in order:**
-   For each loop in resolved order:
-   - Check if already complete (skip if so)
-   - Find draft file (from manifest or pattern matching)
-   - Execute using draft mode flow
-   - Update manifest status
-   - Commit after each loop
+5. **Build parallel groups (unless --sequential):**
+   - Group loops by dependency satisfaction
+   - Loops in same group have no mutual dependencies
+   - See <parallel-execution> section for algorithm
+
+6. **Execute groups:**
+   For each group:
+   - If single loop: execute synchronously
+   - If multiple loops: spawn parallel Task agents
+   - Wait for group completion
+   - Update manifest statuses
+   - Commit after each loop completes
 
 6. **Report results:**
    ```
@@ -263,6 +270,118 @@ loops:
     draft: null
 ```
 </loops-yaml-schema>
+
+<parallel-execution>
+## Parallel Execution
+
+When executing multiple loops, identify which can run in parallel (no mutual dependencies):
+
+### Parallel Grouping Algorithm
+
+```
+function buildParallelGroups(orderedLoops: string[]): string[][] {
+  const groups: string[][] = [];
+  const completed = new Set<string>();
+
+  // Pre-populate with already-complete loops
+  for (const id of Object.keys(manifest.loops)) {
+    if (manifest.loops[id].status === 'complete') {
+      completed.add(id);
+    }
+  }
+
+  const remaining = [...orderedLoops];
+
+  while (remaining.length > 0) {
+    const currentGroup: string[] = [];
+
+    // Find all loops whose dependencies are satisfied
+    for (const id of remaining) {
+      const deps = manifest.loops[id].depends_on || [];
+      const allDepsSatisfied = deps.every(dep => completed.has(dep));
+
+      if (allDepsSatisfied) {
+        currentGroup.push(id);
+      }
+    }
+
+    if (currentGroup.length === 0) {
+      throw Error("Deadlock: no loops can execute");
+    }
+
+    groups.push(currentGroup);
+
+    // Mark as "will be completed" for next iteration
+    for (const id of currentGroup) {
+      completed.add(id);
+      remaining.splice(remaining.indexOf(id), 1);
+    }
+  }
+
+  return groups;
+}
+```
+
+### Parallel Execution Flow
+
+```
+1. Resolve dependency order: [06, 07, 09, 10, 11]
+2. Build parallel groups:
+   - Group 1: [06, 09]     # No dependencies
+   - Group 2: [07, 10]     # 07 needs 06, 10 needs 09
+   - Group 3: [11]         # Needs 09, 10
+
+3. Execute groups:
+   FOR each group:
+     IF group.length == 1:
+       Execute single loop synchronously
+     ELSE:
+       Spawn parallel Task agents for each loop
+       Wait for all to complete (TaskOutput with blocking)
+
+     Update manifest statuses
+     Report group completion
+```
+
+### Spawning Parallel Loops
+
+When a group has multiple loops:
+
+```
+# Use Task tool with run_in_background for all but track completion
+For loop in group[0:-1]:
+  Task(ds-coordinator, loop_folder, run_in_background=true)
+
+# Last one runs foreground, then collect background results
+Task(ds-coordinator, last_loop_folder, run_in_background=false)
+
+For each background task:
+  TaskOutput(task_id, block=true)
+```
+
+### Progress Reporting
+
+```
+Loop Plan: context-architecture
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Group 1 (parallel):
+  ◐ Loop 06: GSD pattern extraction
+  ◐ Loop 09: Loop argument passing
+
+Group 1 complete:
+  ✓ Loop 06: GSD pattern extraction (b67bc3e)
+  ✓ Loop 09: Loop argument passing (def456g)
+
+Group 2 (parallel):
+  ◐ Loop 07: Agent boundary enforcement
+  ◐ Loop 10: Loop dependency resolution
+
+...
+
+All 5 loops complete (3 groups, max parallelism: 2)
+```
+</parallel-execution>
 
 <output>
 Show loop progress and final status:
