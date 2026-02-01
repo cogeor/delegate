@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, copyFileSync, readdirSync, statSync } from 'fs';
+import { existsSync, mkdirSync, copyFileSync, readdirSync, statSync, readFileSync, writeFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { homedir } from 'os';
 import { fileURLToPath } from 'url';
@@ -10,6 +10,10 @@ const projectRoot = join(__dirname, '..');
 const CLAUDE_DIR = join(homedir(), '.claude');
 const COMMANDS_DIR = join(CLAUDE_DIR, 'commands', 'ds');
 const AGENTS_DIR = join(CLAUDE_DIR, 'agents');
+const SETTINGS_FILE = join(CLAUDE_DIR, 'settings.json');
+
+// Path to compiled daemon hook (use forward slashes for JSON)
+const HOOK_SCRIPT = join(projectRoot, 'dist', 'bin', 'daemon-hook.js').replace(/\\/g, '/');
 
 // Colors for terminal output
 const green = '\x1b[32m';
@@ -21,6 +25,61 @@ function ensureDir(dir: string): void {
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
   }
+}
+
+interface ClaudeSettings {
+  hooks?: {
+    SessionStart?: Array<{
+      matcher?: string;
+      hooks: Array<{ type: string; command: string }>;
+    }>;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
+}
+
+function configureHook(): boolean {
+  // Read existing settings or create new
+  let settings: ClaudeSettings = {};
+  if (existsSync(SETTINGS_FILE)) {
+    try {
+      settings = JSON.parse(readFileSync(SETTINGS_FILE, 'utf-8'));
+    } catch {
+      console.log(`${yellow}⚠${reset} Could not parse existing settings.json, creating new`);
+    }
+  }
+
+  // Initialize hooks structure
+  if (!settings.hooks) {
+    settings.hooks = {};
+  }
+  if (!settings.hooks.SessionStart) {
+    settings.hooks.SessionStart = [];
+  }
+
+  // Check if dreamstate hook already exists
+  const hookCommand = `node "${HOOK_SCRIPT}"`;
+  const existingHook = settings.hooks.SessionStart.find(entry =>
+    entry.hooks?.some(h => h.command?.includes('daemon-hook'))
+  );
+
+  if (existingHook) {
+    // Update existing hook command path
+    const hook = existingHook.hooks.find(h => h.command?.includes('daemon-hook'));
+    if (hook) {
+      hook.command = hookCommand;
+    }
+    writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2));
+    return false; // Updated, not added
+  }
+
+  // Add new hook entry
+  settings.hooks.SessionStart.push({
+    hooks: [{ type: 'command', command: hookCommand }]
+  });
+
+  writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2));
+  return true; // Added new
 }
 
 function copyDir(src: string, dest: string): number {
@@ -76,6 +135,14 @@ function main(): void {
     console.log(`${yellow}⚠${reset} Agents directory not found: ${agentsSrc}`);
   }
 
+  // Configure SessionStart hook
+  const hookAdded = configureHook();
+  if (hookAdded) {
+    console.log(`${green}✓${reset} Added SessionStart hook to ~/.claude/settings.json`);
+  } else {
+    console.log(`${green}✓${reset} Updated SessionStart hook in ~/.claude/settings.json`);
+  }
+
   // List installed commands
   console.log('');
   console.log('Commands:');
@@ -102,10 +169,12 @@ function main(): void {
 
   console.log('');
   console.log('Quick start:');
-  console.log(`  1. Start daemon:    ${cyan}npm run daemon${reset}`);
-  console.log(`  2. Test connection: ${cyan}/ds:ping${reset}`);
-  console.log(`  3. Plan future:     ${cyan}/ds:idle${reset}`);
-  console.log(`  4. Run a loop:      ${cyan}/ds:loop${reset}`);
+  console.log(`  ${cyan}Daemon auto-starts when Claude Code launches${reset}`);
+  console.log(`  1. Test connection: ${cyan}/ds:ping${reset}`);
+  console.log(`  2. Enter idle mode: ${cyan}/ds:idle${reset}`);
+  console.log(`  3. Run a loop:      ${cyan}/ds:loop${reset}`);
+  console.log('');
+  console.log(`  Manual daemon:      ${cyan}npm run daemon${reset}`);
   console.log('');
 }
 

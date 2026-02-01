@@ -240,6 +240,8 @@ Please complete this task. Be concise and focused on the specific instruction.`;
 }
 
 // Entry point
-const workspaceRoot = process.cwd();
+// DREAMSTATE_WORKSPACE is set by the SessionStart hook
+// Falls back to cwd for manual invocation
+const workspaceRoot = process.env.DREAMSTATE_WORKSPACE || process.cwd();
 const daemon = new Daemon(workspaceRoot);
 daemon.start();
