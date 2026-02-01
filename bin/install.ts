@@ -12,8 +12,9 @@ const COMMANDS_DIR = join(CLAUDE_DIR, 'commands', 'ds');
 const AGENTS_DIR = join(CLAUDE_DIR, 'agents');
 const SETTINGS_FILE = join(CLAUDE_DIR, 'settings.json');
 
-// Path to compiled daemon hook (use forward slashes for JSON)
-const HOOK_SCRIPT = join(projectRoot, 'dist', 'bin', 'daemon-hook.js').replace(/\\/g, '/');
+// Paths to compiled hooks (use forward slashes for JSON)
+const DAEMON_HOOK = join(projectRoot, 'dist', 'bin', 'daemon-hook.js').replace(/\\/g, '/');
+const PROMPT_HOOK = join(projectRoot, 'dist', 'bin', 'prompt-hook.js').replace(/\\/g, '/');
 
 // Colors for terminal output
 const green = '\x1b[32m';
@@ -27,18 +28,21 @@ function ensureDir(dir: string): void {
   }
 }
 
+interface HookEntry {
+  matcher?: string;
+  hooks: Array<{ type: string; command: string }>;
+}
+
 interface ClaudeSettings {
   hooks?: {
-    SessionStart?: Array<{
-      matcher?: string;
-      hooks: Array<{ type: string; command: string }>;
-    }>;
+    SessionStart?: HookEntry[];
+    UserPromptSubmit?: HookEntry[];
     [key: string]: unknown;
   };
   [key: string]: unknown;
 }
 
-function configureHook(): boolean {
+function configureHooks(): { sessionStart: boolean; promptSubmit: boolean } {
   // Read existing settings or create new
   let settings: ClaudeSettings = {};
   if (existsSync(SETTINGS_FILE)) {
@@ -53,33 +57,47 @@ function configureHook(): boolean {
   if (!settings.hooks) {
     settings.hooks = {};
   }
+
+  const result = { sessionStart: false, promptSubmit: false };
+
+  // Configure SessionStart hook (daemon auto-start)
   if (!settings.hooks.SessionStart) {
     settings.hooks.SessionStart = [];
   }
-
-  // Check if dreamstate hook already exists
-  const hookCommand = `node "${HOOK_SCRIPT}"`;
-  const existingHook = settings.hooks.SessionStart.find(entry =>
+  const daemonCommand = `node "${DAEMON_HOOK}"`;
+  const existingDaemon = settings.hooks.SessionStart.find(entry =>
     entry.hooks?.some(h => h.command?.includes('daemon-hook'))
   );
-
-  if (existingHook) {
-    // Update existing hook command path
-    const hook = existingHook.hooks.find(h => h.command?.includes('daemon-hook'));
-    if (hook) {
-      hook.command = hookCommand;
-    }
-    writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2));
-    return false; // Updated, not added
+  if (existingDaemon) {
+    const hook = existingDaemon.hooks.find(h => h.command?.includes('daemon-hook'));
+    if (hook) hook.command = daemonCommand;
+  } else {
+    settings.hooks.SessionStart.push({
+      hooks: [{ type: 'command', command: daemonCommand }]
+    });
+    result.sessionStart = true;
   }
 
-  // Add new hook entry
-  settings.hooks.SessionStart.push({
-    hooks: [{ type: 'command', command: hookCommand }]
-  });
+  // Configure UserPromptSubmit hook (daemon request injection)
+  if (!settings.hooks.UserPromptSubmit) {
+    settings.hooks.UserPromptSubmit = [];
+  }
+  const promptCommand = `node "${PROMPT_HOOK}"`;
+  const existingPrompt = settings.hooks.UserPromptSubmit.find(entry =>
+    entry.hooks?.some(h => h.command?.includes('prompt-hook'))
+  );
+  if (existingPrompt) {
+    const hook = existingPrompt.hooks.find(h => h.command?.includes('prompt-hook'));
+    if (hook) hook.command = promptCommand;
+  } else {
+    settings.hooks.UserPromptSubmit.push({
+      hooks: [{ type: 'command', command: promptCommand }]
+    });
+    result.promptSubmit = true;
+  }
 
   writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2));
-  return true; // Added new
+  return result;
 }
 
 function copyDir(src: string, dest: string): number {
@@ -135,12 +153,17 @@ function main(): void {
     console.log(`${yellow}⚠${reset} Agents directory not found: ${agentsSrc}`);
   }
 
-  // Configure SessionStart hook
-  const hookAdded = configureHook();
-  if (hookAdded) {
-    console.log(`${green}✓${reset} Added SessionStart hook to ~/.claude/settings.json`);
+  // Configure hooks
+  const hooksResult = configureHooks();
+  if (hooksResult.sessionStart) {
+    console.log(`${green}✓${reset} Added SessionStart hook (daemon auto-start)`);
   } else {
-    console.log(`${green}✓${reset} Updated SessionStart hook in ~/.claude/settings.json`);
+    console.log(`${green}✓${reset} Updated SessionStart hook (daemon auto-start)`);
+  }
+  if (hooksResult.promptSubmit) {
+    console.log(`${green}✓${reset} Added UserPromptSubmit hook (auto-idle trigger)`);
+  } else {
+    console.log(`${green}✓${reset} Updated UserPromptSubmit hook (auto-idle trigger)`);
   }
 
   // List installed commands
@@ -173,6 +196,10 @@ function main(): void {
   console.log(`  1. Test connection: ${cyan}/ds:ping${reset}`);
   console.log(`  2. Enter idle mode: ${cyan}/ds:idle${reset}`);
   console.log(`  3. Run a loop:      ${cyan}/ds:loop${reset}`);
+  console.log('');
+  console.log('Auto-idle (disabled by default):');
+  console.log(`  Enable in ${cyan}.dreamstate/config.json${reset}:`);
+  console.log(`  ${yellow}"daemon": { "auto_idle": { "enabled": true } }${reset}`);
   console.log('');
   console.log(`  Manual daemon:      ${cyan}npm run daemon${reset}`);
   console.log('');

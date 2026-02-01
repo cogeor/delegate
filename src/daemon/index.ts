@@ -1,9 +1,11 @@
+import { writeFileSync } from 'fs';
+import { join } from 'path';
 import { IPC } from './ipc.js';
 import { FileWatcher } from './file-watcher.js';
 import { TokenBudgetTracker } from './token-budget.js';
 import { IdleDetector } from './idle-detector.js';
-import { loadConfig, ensureDreamstateDir } from '../shared/config.js';
-import type { DaemonStatus, Task, TaskResult, PingResult, FileTask } from '../shared/types.js';
+import { loadConfig, ensureDreamstateDir, getDreamstateDir, DAEMON_REQUEST_FILE } from '../shared/config.js';
+import type { DaemonStatus, Task, TaskResult, PingResult, FileTask, Config, DaemonRequest } from '../shared/types.js';
 import { runClaude } from './claude-cli.js';
 
 class Daemon {
@@ -12,6 +14,7 @@ class Daemon {
   private tokenBudget: TokenBudgetTracker;
   private idleDetector: IdleDetector;
   private workspaceRoot: string;
+  private config: Config;
   private startedAt: Date;
   private tasksProcessed = 0;
   private running = false;
@@ -25,7 +28,8 @@ class Daemon {
     ensureDreamstateDir(workspaceRoot);
 
     this.ipc = new IPC(workspaceRoot);
-    const config = loadConfig(workspaceRoot);
+    this.config = loadConfig(workspaceRoot);
+    const config = this.config;
 
     this.tokenBudget = new TokenBudgetTracker(workspaceRoot, config.daemon.token_budget_per_hour);
 
@@ -91,9 +95,28 @@ Please complete this task. Be concise and focused on the specific instruction.`;
       console.log('[Daemon] Idle detected but token budget exceeded, skipping auto-idle');
       return;
     }
-    console.log('[Daemon] Auto-idle triggered - would start idle planning tasks');
-    // Note: Full auto-idle implementation would spawn claude here
-    // For now, just log - user can manually trigger /ds:idle
+
+    // Check if auto-idle is enabled
+    const autoIdle = this.config.daemon.auto_idle;
+    if (!autoIdle.enabled) {
+      console.log('[Daemon] Idle detected (auto-idle disabled, use /ds:idle manually)');
+      return;
+    }
+
+    // Write daemon request for the prompt-submit hook to pick up
+    const request: DaemonRequest = {
+      id: `auto-idle-${Date.now()}`,
+      action: 'start-idle',
+      model: autoIdle.model,
+      max_iterations: autoIdle.max_iterations,
+      prompt: autoIdle.prompt,
+      createdAt: new Date().toISOString()
+    };
+
+    const requestPath = join(getDreamstateDir(this.workspaceRoot), DAEMON_REQUEST_FILE);
+    writeFileSync(requestPath, JSON.stringify(request, null, 2));
+
+    console.log(`[Daemon] Auto-idle triggered - wrote request (model: ${autoIdle.model}, max: ${autoIdle.max_iterations})`);
   }
 
   private handleIdleEnd(): void {

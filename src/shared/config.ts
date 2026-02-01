@@ -1,6 +1,6 @@
-import { existsSync, readFileSync, mkdirSync, writeFileSync, readdirSync, statSync } from 'fs';
+import { existsSync, readFileSync, mkdirSync, writeFileSync, readdirSync, statSync, unlinkSync } from 'fs';
 import { join } from 'path';
-import type { Config, LoopStatus } from './types.js';
+import type { Config, LoopStatus, DaemonRequest } from './types.js';
 
 export const DREAMSTATE_DIR = '.dreamstate';
 export const STATUS_FILE = 'daemon.status';
@@ -35,12 +35,20 @@ export function ensureDreamstateDir(workspaceRoot: string): string {
   return dir;
 }
 
+export const DAEMON_REQUEST_FILE = 'daemon-request.json';
+
 export function getDefaultConfig(): Config {
   return {
     daemon: {
       idle_timeout_minutes: 5,
       token_budget_per_hour: 10000,
-      model: 'haiku'
+      model: 'haiku',
+      auto_idle: {
+        enabled: false,  // Disabled by default - user must opt-in
+        model: 'haiku',
+        max_iterations: 10,  // Throttle: max iterations per idle session
+        prompt: undefined
+      }
     },
     watch: {
       patterns: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
@@ -62,7 +70,14 @@ export function loadConfig(workspaceRoot: string): Config {
     try {
       const userConfig = JSON.parse(readFileSync(configPath, 'utf-8')) as Partial<Config>;
       return {
-        daemon: { ...defaults.daemon, ...userConfig.daemon },
+        daemon: {
+          ...defaults.daemon,
+          ...userConfig.daemon,
+          auto_idle: {
+            ...defaults.daemon.auto_idle,
+            ...(userConfig.daemon?.auto_idle || {})
+          }
+        },
         watch: { ...defaults.watch, ...userConfig.watch },
         docs: { ...defaults.docs, ...userConfig.docs }
       };

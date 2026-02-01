@@ -43,6 +43,12 @@ export interface Config {
     idle_timeout_minutes: number;
     token_budget_per_hour: number;
     model: string;
+    auto_idle: {
+      enabled: boolean;        // Whether to request idle mode when user is idle
+      model: 'haiku' | 'sonnet' | 'opus';  // Model to use for auto-idle
+      max_iterations: number;  // Max iterations per idle session (throttle)
+      prompt?: string;         // Optional focus prompt for idle sessions
+    };
   };
   watch: {
     patterns: string[];
@@ -53,6 +59,15 @@ export interface Config {
     patterns: string[];
     ignore: string[];
   };
+}
+
+export interface DaemonRequest {
+  id: string;
+  action: 'start-idle' | 'stop-idle';
+  model?: string;
+  max_iterations?: number;
+  prompt?: string;
+  createdAt: string;
 }
 
 export interface LoopStatus {
