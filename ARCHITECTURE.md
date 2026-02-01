@@ -16,9 +16,9 @@ Dreamstate uses a daemon + plugin architecture for spec-driven development. The 
   |         +--------+--------+--------------------+            |
   |                  |                                          |
   |           +------v------+                                   |
-  |           | Task Queue  |                                   |
-  |           | (token      |                                   |
-  |           |  budgeted)  |                                   |
+  |           |Token Budget |                                   |
+  |           | (hourly     |                                   |
+  |           |  limits)    |                                   |
   |           +-------------+                                   |
   +-------------------------------------------------------------+
            |                              ^
@@ -37,7 +37,7 @@ Dreamstate uses a daemon + plugin architecture for spec-driven development. The 
 |-----------|---------|----------|
 | **File Watcher** | Monitors workspace for file saves, triggers LLM tasks | `src/daemon/file-watcher.ts` |
 | **Idle Detector** | Tracks Claude Code activity, triggers reflection | `src/daemon/idle-detector.ts` |
-| **Task Queue** | Manages task execution with token budgeting | `src/daemon/task-queue.ts` |
+| **Token Budget** | Manages hourly token spending limits | `src/daemon/token-budget.ts` |
 | **Claude CLI Interface** | Spawns `claude` processes with prompts | `src/daemon/claude-cli.ts` |
 
 ## Plugin Components
@@ -67,7 +67,7 @@ src/
 |   +-- index.ts           # Daemon entry point
 |   +-- file-watcher.ts    # Watch for file saves
 |   +-- idle-detector.ts   # Detect idle state
-|   +-- task-queue.ts      # Queue with token budget
+|   +-- token-budget.ts    # Hourly token spending limits
 |   +-- claude-cli.ts      # Spawn claude processes
 |   +-- ipc.ts             # File-based IPC
 +-- plugin/
@@ -88,6 +88,7 @@ src/
 | `ds-executor` | Implements specific tasks from plans |
 | `ds-tester` | Verifies implementation, runs tests |
 | `ds-idle-planner` | Refines loop plans during idle mode |
+| `ds-doc-generator` | Generates documentation during idle time |
 
 ## Configuration
 
@@ -98,11 +99,21 @@ src/
   "daemon": {
     "idle_timeout_minutes": 5,
     "token_budget_per_hour": 10000,
-    "model": "haiku"
+    "model": "haiku",
+    "auto_idle": {
+      "enabled": false,
+      "model": "haiku",
+      "max_iterations": 10
+    }
   },
   "watch": {
-    "patterns": ["**/*.ts", "**/*.tsx"],
-    "ignore": ["node_modules", "dist"]
+    "patterns": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
+    "ignore": ["node_modules", "dist", ".git", ".dreamstate"]
+  },
+  "docs": {
+    "enabled": true,
+    "patterns": ["src/**/*.ts"],
+    "ignore": ["**/*.test.ts"]
   }
 }
 ```

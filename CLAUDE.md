@@ -39,6 +39,7 @@ npm run install:claude  # Install plugin to Claude Code
 | `ds-executor` | Implements tasks |
 | `ds-tester` | Verifies implementation |
 | `ds-idle-planner` | Refines loop plans during idle |
+| `ds-doc-generator` | Generates documentation during idle |
 
 ## Plugin Development
 
@@ -86,11 +87,30 @@ Agent system prompt
   "daemon": {
     "idle_timeout_minutes": 5,
     "token_budget_per_hour": 10000,
-    "model": "haiku"
+    "model": "haiku",
+    "auto_idle": {
+      "enabled": false,
+      "model": "haiku",
+      "max_iterations": 10,
+      "prompt": null
+    }
   },
   "watch": {
-    "patterns": ["**/*.ts", "**/*.tsx"],
-    "ignore": ["node_modules", "dist"]
+    "patterns": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
+    "ignore": ["node_modules", "dist", ".git", ".dreamstate"]
+  },
+  "docs": {
+    "enabled": true,
+    "patterns": ["src/**/*.ts", "src/**/*.tsx"],
+    "ignore": ["**/*.test.ts", "**/*.spec.ts", "**/types.ts"]
   }
 }
 ```
+
+**Config Options:**
+| Section | Option | Description |
+|---------|--------|-------------|
+| `daemon.auto_idle` | Auto-start idle mode when Claude Code is inactive |
+| `daemon.auto_idle.max_iterations` | Limit iterations per idle session (prevents context bloat) |
+| `docs` | Background documentation generation settings |
+| `docs.patterns` | Files to generate docs for |
