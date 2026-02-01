@@ -45,6 +45,11 @@ export function getDefaultConfig(): Config {
     watch: {
       patterns: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
       ignore: ['node_modules', 'dist', '.git', '.dreamstate']
+    },
+    docs: {
+      enabled: true,
+      patterns: ['src/**/*.ts', 'src/**/*.tsx'],
+      ignore: ['**/*.test.ts', '**/*.spec.ts', '**/types.ts']
     }
   };
 }
@@ -58,7 +63,8 @@ export function loadConfig(workspaceRoot: string): Config {
       const userConfig = JSON.parse(readFileSync(configPath, 'utf-8')) as Partial<Config>;
       return {
         daemon: { ...defaults.daemon, ...userConfig.daemon },
-        watch: { ...defaults.watch, ...userConfig.watch }
+        watch: { ...defaults.watch, ...userConfig.watch },
+        docs: { ...defaults.docs, ...userConfig.docs }
       };
     } catch {
       return defaults;
