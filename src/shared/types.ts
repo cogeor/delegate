@@ -98,11 +98,13 @@ export interface LoopPlan {
 export interface IdleState {
   active: boolean;
   startedAt: string | null;
+  stoppedAt?: string | null;
   model: string;
+  prompt: string | null;  // User-provided focus/direction
   iterations: number;
   currentLoopPlan: string | null;  // Path to active loop_plan folder
   lastIteration: string | null;
-  tokenUsed: number;
+  tokensUsed: number;
 }
 
 export type IdleModel = 'haiku' | 'sonnet' | 'opus';

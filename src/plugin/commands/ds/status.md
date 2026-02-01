@@ -42,15 +42,16 @@ Token Budget:
 
 Idle Mode:  {Active|Inactive}
 Model:      {model if active}
+Focus:      {prompt if provided, else "General exploration"}
 Iterations: {count if active}
 Loop Plan:  {path if active}
 
 Watching:   {patterns}
 
 Commands:
-  /ds:idle [model]  - Enter idle mode
-  /ds:wake          - Stop idle mode
-  /ds:loop          - Run a loop
+  /ds:idle [model] [prompt]  - Enter idle mode with optional focus
+  /ds:wake                   - Stop idle mode
+  /ds:loop                   - Run a loop
 ```
 
 When daemon not running:

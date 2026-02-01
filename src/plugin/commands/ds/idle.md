@@ -15,12 +15,20 @@ Enter idle mode with a specified model. Continuously iterate on loop plans, addi
 </objective>
 
 <usage>
-/ds:idle [model]
+/ds:idle [model] [prompt]
 
-Models:
-  haiku  - Fastest, cheapest (default)
-  sonnet - Balanced
-  opus   - Most capable
+Arguments:
+  model  - haiku (default), sonnet, or opus
+  prompt - Optional guidance for the idle planner
+
+Examples:
+  /ds:idle
+  /ds:idle haiku
+  /ds:idle sonnet "focus on improving test coverage"
+  /ds:idle "explore the GSD verification patterns"
+  /ds:idle opus "compare our daemon to GSD patterns and extract improvements"
+
+If first argument is not a model name, it's treated as the prompt (uses haiku).
 </usage>
 
 <behavior>
@@ -40,7 +48,17 @@ To stop: /ds:wake
 </behavior>
 
 <execution>
-1. Parse model argument (default: haiku)
+1. Parse arguments:
+   ```
+   IF no arguments:
+     model = "haiku", prompt = null
+   ELSE IF first arg is "haiku"|"sonnet"|"opus":
+     model = first arg
+     prompt = remaining args joined (or null)
+   ELSE:
+     model = "haiku"
+     prompt = all args joined
+   ```
 
 2. Check if already in idle mode:
    - Read .dreamstate/idle.state
@@ -56,6 +74,7 @@ To stop: /ds:wake
      "active": true,
      "startedAt": "{timestamp}",
      "model": "{model}",
+     "prompt": "{prompt or null}",
      "iterations": 0,
      "currentLoopPlan": "{path}",
      "lastIteration": null,
@@ -64,11 +83,25 @@ To stop: /ds:wake
    ```
    Write to .dreamstate/idle.state
 
-5. Start iteration loop:
+5. If prompt provided, write to {loop_plan}/FOCUS.md:
+   ```markdown
+   # Idle Session Focus
+
+   > User-provided direction for this idle session.
+
+   {prompt}
+
+   ---
+   Started: {timestamp}
+   Model: {model}
+   ```
+
+6. Start iteration loop:
    ```
    WHILE idle.state.active == true:
      - Read current loop plan
-     - Spawn ds-idle-planner with model={model}
+     - Read FOCUS.md if exists (pass to planner)
+     - Spawn ds-idle-planner with model={model}, focus={prompt}
      - Agent returns: what was refined/added
      - Increment iterations
      - Update idle.state
@@ -77,11 +110,12 @@ To stop: /ds:wake
      - Brief pause (5 seconds)
    ```
 
-6. Report idle mode started:
+7. Report idle mode started:
    ```
    Idle Mode Active
    ━━━━━━━━━━━━━━━━
    Model: {model}
+   Focus: {prompt or "General exploration"}
    Loop Plan: {path}
 
    Idle mode will continuously refine loop plans.
