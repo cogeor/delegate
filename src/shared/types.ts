@@ -95,3 +95,19 @@ export interface IdleState {
 }
 
 export type IdleModel = 'haiku' | 'sonnet' | 'opus';
+
+export interface CommitInfo {
+  hash: string;
+  message: string;
+  type: 'feat' | 'fix' | 'refactor' | 'docs' | 'test' | 'chore';
+  scope?: string;
+  filesChanged: string[];
+  createdAt: string;
+}
+
+export interface TestResult {
+  status: 'PASS' | 'FAIL' | 'PARTIAL';
+  readyForCommit: boolean;
+  summary: string;
+  failures?: string[];
+}

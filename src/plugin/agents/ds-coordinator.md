@@ -100,7 +100,22 @@ Updated: {timestamp}
 
 ## Git Commit
 
-After successful testing, commit the changes:
+After successful testing (when TEST.md shows `Ready for Commit: yes`), commit the changes:
+
+### Pre-Commit Checks
+
+1. **Verify clean starting point**:
+   ```bash
+   git status --porcelain
+   ```
+   - If there are untracked/modified files NOT related to this loop, warn user
+   - Proceed only with loop-related changes
+
+2. **Read commit info from TEST.md**:
+   - Extract `Suggested Commit Type` (feat/fix/refactor/docs/test/chore)
+   - Extract `Suggested Commit Message`
+
+### Commit Execution
 
 1. **Stage only implementation files** (not .dreamstate/ artifacts):
    ```bash
@@ -110,20 +125,56 @@ After successful testing, commit the changes:
 
 2. **Create commit with user as author** (no AI attribution):
    ```bash
-   git commit -m "{type}: {description}
+   git commit -m "{type}({scope}): {description}
 
    Implements: {loop_folder_name}
    "
    ```
 
-3. **Write COMMIT.md** with commit hash for reference
+3. **Capture commit hash**:
+   ```bash
+   git rev-parse HEAD
+   ```
 
-**Commit message types**: feat, fix, refactor, docs, test, chore
+4. **Write COMMIT.md**:
+   ```markdown
+   # Commit Info
+
+   Hash: {full_commit_hash}
+   Short: {short_hash}
+   Created: {timestamp}
+
+   ## Message
+   {full commit message}
+
+   ## Files Changed
+   - {file1}
+   - {file2}
+
+   ## Loop Reference
+   Folder: {loop_folder_name}
+   Draft: {summary of DRAFT.md}
+   ```
+
+### Commit Message Format
+
+Follow conventional commits: `{type}({scope}): {description}`
+
+**Types**:
+- `feat`: New functionality added
+- `fix`: Bug fixed
+- `refactor`: Code restructured without behavior change
+- `docs`: Documentation only
+- `test`: Test files only
+- `chore`: Build, config, or maintenance
+
+**Scope** (optional): Component or area affected (e.g., `daemon`, `ipc`, `commands`)
 
 **IMPORTANT**:
 - Do NOT include AI co-author or attribution
 - Do NOT push - user pushes manually
 - User gets full credit for the commit
+- If commit fails, update STATUS.md to `needs-fix` and explain in COMMIT.md
 
 ## Error Handling
 

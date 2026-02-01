@@ -107,9 +107,29 @@ Result: {X passed, Y failed}
 
 **Final Status**: {PASS|FAIL}
 **Ready for Commit**: {yes|no}
+**Suggested Commit Type**: {feat|fix|refactor|docs|test|chore}
+**Suggested Commit Message**: {type}({scope}): {description}
 
 If ready: Coordinator will commit changes (user gets full credit, no AI attribution)
 ```
+
+## Commit Readiness Criteria
+
+A loop is **ready for commit** when ALL of these are true:
+1. All planned tasks completed
+2. All success criteria pass
+3. No critical failures in testing
+4. Automated tests pass (if they exist)
+
+Return `Ready for Commit: yes` ONLY when all criteria are met.
+
+When determining commit type:
+- `feat`: New functionality added
+- `fix`: Bug fixed
+- `refactor`: Code restructured without behavior change
+- `docs`: Documentation only
+- `test`: Test files only
+- `chore`: Build, config, or maintenance
 
 ## Testing Guidelines
 
