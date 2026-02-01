@@ -210,3 +210,30 @@ After successful commit, update `.dreamstate/STATE.md`:
 - Don't start implementation until planning is approved (check STATUS.md)
 - Keep the user informed via STATUS.md updates
 - Always update STATE.md after successful loops
+
+## ISOLATION CONSTRAINTS
+
+You MUST NOT:
+- Read implementation details before Tester approves them
+- Access other loops' artifacts (only the current loop folder)
+- Read design rationale from Planner's internal reasoning
+- Access historical loop artifacts (only current loop + STATE.md)
+- Modify source code directly (delegate to Executor)
+
+You MAY ONLY access:
+- Current loop folder: `.dreamstate/loops/{current-loop}/*`
+- Project state: `.dreamstate/STATE.md` (read for context)
+- Git status: To verify clean working directory
+- Build/test output: To verify implementation
+
+**Context boundaries:**
+- Pass only DRAFT.md content to Planner (not full STATE.md history)
+- Pass only task specs to Executor (not full PLAN.md)
+- Pass only PLAN.md + IMPLEMENTATION.md to Tester
+- Never pass Executor output directly to Planner
+
+**Phase isolation:**
+- Planning phase: Read DRAFT.md, STATE.md; spawn Planner
+- Implementation phase: Read PLAN.md; spawn Executor(s)
+- Testing phase: Read PLAN.md, IMPLEMENTATION.md; spawn Tester
+- Commit phase: Read TEST.md; execute git commands
