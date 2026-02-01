@@ -44,24 +44,20 @@ This creates `{loop_plan}/FOCUS.md` with their direction.
 
 ## Priority Actions (in order)
 
-### 1. Template Exploration (MANDATORY - NOT OPTIONAL)
+### 1. Template Exploration (MANDATORY)
 
-**FAILURE TO EXPLORE TEMPLATES = FAILED ITERATION**
-
-This is not optional. Every single iteration MUST include template analysis.
+Every iteration MUST include template analysis. The `template_insight` in your output proves exploration.
 
 ```
 BEFORE doing ANY other work:
 1. List files in .dreamstate/templates/ to see available reference codebases
 2. Pick 1-2 files relevant to current focus
-3. Read them COMPLETELY using the Read tool
-4. Extract 2-3 concrete patterns or insights
-5. Document in template_file_read and template_insight fields
-
-Only AFTER completing template exploration can you proceed to other work.
+3. Read them using the Read tool
+4. Extract 1-2 concrete patterns or insights
+5. Include the insight in parentheses at end of your summary line
 ```
 
-**Why this is enforced:** Aspirational constraints fail without enforcement. Template exploration must be proven via required output fields.
+**Why enforced:** Template insights in output format prove exploration happened.
 
 **What to look for:**
 - Workflow patterns (how do they structure commands?)
@@ -158,31 +154,45 @@ ELSE:
   → WebSearch for similar projects, find patterns
 ```
 
-## Output Format (REQUIRED FIELDS)
+## Output Format (CONCISE)
 
-After each iteration, return ALL of these fields:
+After each iteration, return EXACTLY this format for ITERATIONS.md:
 
-```yaml
-# MANDATORY - Template exploration proof
-template_file_read: "{path to template file you read}"  # REQUIRED - iteration fails without this
-template_insight: "{concrete pattern discovered}"       # REQUIRED - must be specific, not "none"
+```markdown
+## Iteration {N} | {time} | {model} | {action} | {target}
 
-# Action taken
-action: reflect|explore-template|update-mission|expand|research
-target: "{loop name or template file or mission section}"
-summary: "{one sentence of what you did}"
+{summary} ({template_insight})
 
-# Changes made
-changes:
-  - file: "{filename}"
-    change: "{what changed}"
-
-# Optional
-mission_update: "{what changed in mission, if any}"
-next_focus: "{what to look at next iteration}"
+---
 ```
 
-**Validation:** If `template_file_read` is empty or `template_insight` is "none"/"null", the iteration is considered failed and must be retried.
+**Fields:**
+- `{N}` - Iteration number
+- `{time}` - Time since session start (HH:MM format)
+- `{model}` - Model used (haiku/sonnet/opus)
+- `{action}` - One of: discover|connect|refine|design|reflect|research
+- `{target}` - Loop ID, section name, or template file (short form)
+- `{summary}` - One sentence: what you did and why it matters
+- `{template_insight}` - One phrase: pattern discovered from templates
+
+**Action Types:**
+- `discover` - Found a new pattern, gap, or opportunity
+- `connect` - Linked concepts, created relationships
+- `refine` - Improved existing content, fixed issues
+- `design` - Created new plans, architectures
+- `reflect` - Reviewed completed loops, assessed quality
+- `research` - Searched external sources, compared approaches
+
+**Example:**
+```markdown
+## Iteration 5 | 00:30 | haiku | expand | 01-core
+
+Detailed daemon flow, added error handling paths (GSD: priority queue pattern for task scheduling)
+
+---
+```
+
+**Validation:** Template insight is required - iterations without template exploration are incomplete.
 
 ## Template Exploration Checklist
 
@@ -234,12 +244,13 @@ test('daemon rejects task when token budget exceeded', async () => {
 
 ## Constraints
 
-- **Always explore templates** - Every iteration MUST learn from templates (enforced via output)
+- **Always explore templates** - Every iteration MUST learn from templates (insight required in output)
 - **Always update MISSION.md** - Keep it current
 - **Reflect on completed loops** - No loop goes unreflected
 - **Focus on integration tests** - Unit tests are not enough
 - **Be critical** - Don't praise, find issues
 - **Be specific** - Vague feedback is useless
+- **Be concise** - One-line summaries, not paragraphs
 
 ## ISOLATION CONSTRAINTS
 

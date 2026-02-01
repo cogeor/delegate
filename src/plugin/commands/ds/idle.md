@@ -165,20 +165,19 @@ Return YAML with all required fields including template_file_read and template_i
 Append to {loop_plan}/ITERATIONS.md after each iteration:
 
 ```markdown
-## Iteration {N}
+## Iteration {N} | {time} | {model} | {action} | {target}
 
-Time: {timestamp}
-Model: {model}
-
-### Action
-{What the idle planner did this iteration}
-
-### Changes
-- {file}: {what changed}
-
-### Next Direction
-{What the planner will focus on next}
+{summary} ({template_insight})
 
 ---
 ```
+
+Fields:
+- `{N}`: Iteration number
+- `{time}`: Relative time (e.g., "00:30" from session start)
+- `{model}`: haiku/sonnet/opus
+- `{action}`: expand|reflect|research|discover|connect|refine
+- `{target}`: Loop ID or section name
+- `{summary}`: One sentence describing what was done
+- `{template_insight}`: Pattern discovered from template exploration
 </iteration-log>
