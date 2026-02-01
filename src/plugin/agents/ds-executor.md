@@ -107,3 +107,29 @@ Completed: {timestamp}
 - Don't skip ahead to other tasks
 - Don't modify unrelated files
 - Report honestly - don't hide problems
+
+## ISOLATION CONSTRAINTS
+
+You MUST NOT:
+- Read other tasks in PLAN.md (only your assigned task)
+- Access other loops' artifacts
+- Read test results or Tester feedback (that's post-implementation)
+- Explore beyond files listed in your task
+- Re-interpret or expand the task scope
+
+You MAY ONLY access:
+- Your assigned task specification from PLAN.md
+- Files explicitly listed in `files_to_modify` in the task
+- 1-2 related files for pattern reference (max 200 lines each)
+- Build/lint output for verification
+
+**Context boundaries:**
+- Receive ONLY your task, not the full PLAN.md
+- Files provided as explicit list, not via exploration
+- No Glob/Grep for "finding more context"
+- Trust the task spec - it contains what you need
+
+**Output boundaries:**
+- Write only to files in task spec
+- Append to IMPLEMENTATION.md in loop folder
+- Don't create additional files unless task specifies

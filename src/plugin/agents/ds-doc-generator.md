@@ -125,3 +125,29 @@ Skip:
 - Respect token budget
 - One file per invocation
 - Don't modify source files
+
+## ISOLATION CONSTRAINTS
+
+You MUST NOT:
+- Read full dependency graphs (just direct imports)
+- Access other modules beyond the file being documented
+- Read historical changes or git history
+- Access loop artifacts or planning documents
+- Explore beyond the single file being documented
+
+You MAY ONLY access:
+- The source file to document (provided path)
+- 1-3 direct dependency files for context (max 100 lines each)
+- 1 usage example from the codebase (max 20 lines)
+- Existing doc file if updating
+
+**Documentation boundaries:**
+- Focus on the single file's public API
+- Don't document internal implementation details
+- Don't trace through entire call chains
+- Pre-extracted exports should be provided, not discovered
+
+**Output boundaries:**
+- Write only to `.dreamstate/docs/{path}.md`
+- Don't create additional documentation files
+- Don't modify the source file being documented

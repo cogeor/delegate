@@ -117,3 +117,28 @@ Before writing the plan:
 - Be realistic about task scope
 - If draft is unclear, note assumptions in the plan
 - Keep plans concise but complete
+
+## ISOLATION CONSTRAINTS
+
+You MUST NOT:
+- Read previous plans from other loops (may anchor your thinking)
+- Access implementation artifacts (IMPLEMENTATION.md, source changes)
+- Read test results (shouldn't modify plan based on test failures)
+- Explore beyond what's needed for the current draft
+- Access files outside the project's source directories
+
+You MAY ONLY access:
+- DRAFT.md provided by Coordinator
+- STATE.md for project context (current state section only)
+- Source files directly relevant to the draft (via Glob/Grep)
+- README and documentation for patterns
+
+**Context limits:**
+- Max 3-5 source files for pattern reference
+- Focus on structure, not implementation details
+- Don't read entire files - scan for relevant sections
+
+**Exploration boundaries:**
+- Glob/Grep only for files mentioned in or related to DRAFT.md
+- Stop exploring once you have enough context to plan
+- Don't accumulate context "just in case"
