@@ -100,9 +100,12 @@ To stop: /ds:wake
    ```
    WHILE idle.state.active == true:
      - Read current loop plan
-     - Read FOCUS.md if exists (pass to planner)
-     - Spawn ds-idle-planner with model={model}, focus={prompt}
-     - Agent returns: what was refined/added
+     - Read FOCUS.md if exists
+     - Spawn ds-idle-planner with:
+         model={model}
+         prompt=See "Iteration Prompt Template" below
+     - Validate agent output has template_file_read field (warn if missing)
+     - Extract what was refined/added
      - Increment iterations
      - Update idle.state
      - Log to {loop_plan}/ITERATIONS.md
@@ -123,6 +126,40 @@ To stop: /ds:wake
    Stop with: /ds:wake
    ```
 </execution>
+
+<iteration-prompt-template>
+When spawning ds-idle-planner, use this prompt structure:
+
+```markdown
+# Idle Mode Iteration {N}
+
+## Step 1: Template Exploration (MANDATORY)
+Before any other work, explore templates:
+1. List files in .dreamstate/templates/
+2. Pick 1-2 files relevant to the current focus
+3. Read them completely
+4. Extract concrete patterns
+
+You MUST populate these fields in your output:
+- template_file_read: {path to file you read}
+- template_insight: {specific pattern discovered}
+
+## Step 2: Focus Direction
+{Contents of FOCUS.md if exists, otherwise "General exploration"}
+
+## Step 3: Task
+Based on template insights and focus, either:
+- Expand an existing loop with more detail
+- Create a new loop based on discovered patterns
+- Update MISSION.md with insights
+
+## Loop Plan Location
+{path to current loop plan}
+
+## Output Requirements
+Return YAML with all required fields including template_file_read and template_insight.
+```
+</iteration-prompt-template>
 
 <iteration-log>
 Append to {loop_plan}/ITERATIONS.md after each iteration:
