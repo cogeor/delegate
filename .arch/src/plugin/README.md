@@ -8,9 +8,9 @@ Claude Code plugin providing slash commands and specialized agents for the dream
 
 **Commands (ds namespace):**
 - `/ds:ping` - Test daemon connectivity
-- `/ds:status` - Show daemon and idle mode status
-- `/ds:idle [model] [prompt]` - Enter continuous idle refinement mode
-- `/ds:wake` - Stop idle mode
+- `/ds:status` - Show daemon and dream mode status
+- `/ds:dream [model] [prompt]` - Enter continuous dream refinement mode
+- `/ds:wake` - Stop dream mode
 - `/ds:loop [args]` - Execute plan/implement/test loops
 
 **Agents:**
@@ -18,7 +18,7 @@ Claude Code plugin providing slash commands and specialized agents for the dream
 - `ds-planner` - Creates implementation plans from drafts
 - `ds-executor` - Implements tasks from plans
 - `ds-tester` - Verifies implementation against plan
-- `ds-idle-planner` - Refines plans during idle mode
+- `ds-dream-planner` - Refines plans during dream mode
 
 ## Architecture
 
@@ -32,12 +32,12 @@ Claude Code plugin providing slash commands and specialized agents for the dream
          +------------------+------------------+
          |          |           |              |
     +----v----+ +---v---+ +----v----+  +------v------+
-    |  ping   | |status | |  loop   |  |idle / wake  |
+    |  ping   | |status | |  loop   |  |dream / wake |
     +---------+ +-------+ +----+----+  +------+------+
          |          |          |              |
          |          |          v              v
-         |          |   +------+------+  +----+------+
-         |          |   | coordinator |  |idle-planner|
+         |          |   +------+------+  +------+------+
+         |          |   | coordinator |  |dream-planner|
          v          v   +------+------+  +-----------+
     [.dreamstate/]      |      |
          ^              v      v
@@ -56,19 +56,19 @@ Claude Code plugin providing slash commands and specialized agents for the dream
 | File | Purpose |
 |------|---------|
 | commands/ds/ping.md | Tests daemon connectivity via IPC |
-| commands/ds/status.md | Displays daemon and idle status |
-| commands/ds/idle.md | Starts continuous idle planning mode |
-| commands/ds/wake.md | Stops idle mode |
+| commands/ds/status.md | Displays daemon and dream status |
+| commands/ds/dream.md | Starts continuous dream planning mode |
+| commands/ds/wake.md | Stops dream mode |
 | commands/ds/loop.md | Executes loops with dependency resolution |
 | agents/ds-coordinator.md | Orchestrates plan/implement/test phases |
 | agents/ds-planner.md | Transforms drafts into detailed plans |
 | agents/ds-executor.md | Implements tasks from plans |
 | agents/ds-tester.md | Verifies implementation, gates commits |
-| agents/ds-idle-planner.md | Explores templates, refines missions |
+| agents/ds-dream-planner.md | Explores templates, refines missions |
 
 ## Dependencies
 
-**Inputs:** `.dreamstate/` (tasks, idle.state, daemon.status, templates), `../shared/types`
+**Inputs:** `.dreamstate/` (tasks, dream.state, daemon.status, templates), `../shared/types`
 
 **Outputs:** `.dreamstate/results/`, `.dreamstate/loops/*/`, `.dreamstate/loop_plans/*/`, git commits
 
@@ -93,7 +93,7 @@ Claude Code plugin providing slash commands and specialized agents for the dream
               +-> git add/commit
               +-> write COMMIT.md
 
-/ds:idle
-  +-> create loop_plan folder, write idle.state
-  +-> loop: Task(ds-idle-planner) -> ITERATIONS.md -> check active
+/ds:dream
+  +-> create loop_plan folder, write dream.state
+  +-> loop: Task(ds-dream-planner) -> ITERATIONS.md -> check active
 ```

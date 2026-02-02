@@ -15,6 +15,7 @@ const SETTINGS_FILE = join(CLAUDE_DIR, 'settings.json');
 // Paths to compiled hooks (use forward slashes for JSON)
 const DAEMON_HOOK = join(projectRoot, 'dist', 'bin', 'daemon-hook.js').replace(/\\/g, '/');
 const PROMPT_HOOK = join(projectRoot, 'dist', 'bin', 'prompt-hook.js').replace(/\\/g, '/');
+const SESSION_END_HOOK = join(projectRoot, 'dist', 'bin', 'session-end-hook.js').replace(/\\/g, '/');
 
 // Colors for terminal output
 const green = '\x1b[32m';
@@ -37,12 +38,13 @@ interface ClaudeSettings {
   hooks?: {
     SessionStart?: HookEntry[];
     UserPromptSubmit?: HookEntry[];
+    SessionEnd?: HookEntry[];
     [key: string]: unknown;
   };
   [key: string]: unknown;
 }
 
-function configureHooks(): { sessionStart: boolean; promptSubmit: boolean } {
+function configureHooks(): { sessionStart: boolean; promptSubmit: boolean; sessionEnd: boolean } {
   // Read existing settings or create new
   let settings: ClaudeSettings = {};
   if (existsSync(SETTINGS_FILE)) {
@@ -58,7 +60,7 @@ function configureHooks(): { sessionStart: boolean; promptSubmit: boolean } {
     settings.hooks = {};
   }
 
-  const result = { sessionStart: false, promptSubmit: false };
+  const result = { sessionStart: false, promptSubmit: false, sessionEnd: false };
 
   // Configure SessionStart hook (daemon auto-start)
   if (!settings.hooks.SessionStart) {
@@ -94,6 +96,24 @@ function configureHooks(): { sessionStart: boolean; promptSubmit: boolean } {
       hooks: [{ type: 'command', command: promptCommand }]
     });
     result.promptSubmit = true;
+  }
+
+  // Configure SessionEnd hook (daemon cleanup)
+  if (!settings.hooks.SessionEnd) {
+    settings.hooks.SessionEnd = [];
+  }
+  const sessionEndCommand = `node "${SESSION_END_HOOK}"`;
+  const existingSessionEnd = settings.hooks.SessionEnd.find(entry =>
+    entry.hooks?.some(h => h.command?.includes('session-end-hook'))
+  );
+  if (existingSessionEnd) {
+    const hook = existingSessionEnd.hooks.find(h => h.command?.includes('session-end-hook'));
+    if (hook) hook.command = sessionEndCommand;
+  } else {
+    settings.hooks.SessionEnd.push({
+      hooks: [{ type: 'command', command: sessionEndCommand }]
+    });
+    result.sessionEnd = true;
   }
 
   writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2));
@@ -161,9 +181,14 @@ function main(): void {
     console.log(`${green}✓${reset} Updated SessionStart hook (daemon auto-start)`);
   }
   if (hooksResult.promptSubmit) {
-    console.log(`${green}✓${reset} Added UserPromptSubmit hook (auto-idle trigger)`);
+    console.log(`${green}✓${reset} Added UserPromptSubmit hook (auto-dream trigger)`);
   } else {
-    console.log(`${green}✓${reset} Updated UserPromptSubmit hook (auto-idle trigger)`);
+    console.log(`${green}✓${reset} Updated UserPromptSubmit hook (auto-dream trigger)`);
+  }
+  if (hooksResult.sessionEnd) {
+    console.log(`${green}✓${reset} Added SessionEnd hook (daemon cleanup on exit)`);
+  } else {
+    console.log(`${green}✓${reset} Updated SessionEnd hook (daemon cleanup on exit)`);
   }
 
   // List installed commands
@@ -194,12 +219,12 @@ function main(): void {
   console.log('Quick start:');
   console.log(`  ${cyan}Daemon auto-starts when Claude Code launches${reset}`);
   console.log(`  1. Test connection: ${cyan}/ds:ping${reset}`);
-  console.log(`  2. Enter idle mode: ${cyan}/ds:idle${reset}`);
-  console.log(`  3. Run a loop:      ${cyan}/ds:loop${reset}`);
+  console.log(`  2. Enter dream mode: ${cyan}/ds:dream${reset}`);
+  console.log(`  3. Run a loop:       ${cyan}/ds:loop${reset}`);
   console.log('');
-  console.log('Auto-idle (disabled by default):');
+  console.log('Auto-dream (disabled by default):');
   console.log(`  Enable in ${cyan}.dreamstate/config.json${reset}:`);
-  console.log(`  ${yellow}"daemon": { "auto_idle": { "enabled": true } }${reset}`);
+  console.log(`  ${yellow}"daemon": { "auto_dream": { "enabled": true } }${reset}`);
   console.log('');
   console.log(`  Manual daemon:      ${cyan}npm run daemon${reset}`);
   console.log('');

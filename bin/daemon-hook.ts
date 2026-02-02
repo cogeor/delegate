@@ -5,8 +5,8 @@
  * Must be fast - detaches daemon and exits immediately.
  */
 
-import { existsSync, readFileSync } from 'fs';
-import { spawn } from 'child_process';
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { spawn, execSync } from 'child_process';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -16,7 +16,8 @@ const projectRoot = join(__dirname, '..');
 
 // Get workspace from CWD (Claude Code runs hooks in workspace)
 const workspace = process.cwd();
-const pidFile = join(workspace, '.dreamstate', 'daemon.pid');
+const dreamstateDir = join(workspace, '.dreamstate');
+const pidFile = join(dreamstateDir, 'daemon.pid');
 
 function isProcessRunning(pid: number): boolean {
   try {
@@ -27,7 +28,15 @@ function isProcessRunning(pid: number): boolean {
   }
 }
 
+function ensureDir(dir: string): void {
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
+  }
+}
+
 function main(): void {
+  ensureDir(dreamstateDir);
+
   // Check if daemon already running
   if (existsSync(pidFile)) {
     try {
@@ -42,24 +51,58 @@ function main(): void {
     }
   }
 
-  // Start daemon in background
+  // Path to the daemon entry point
+  const daemonScript = join(projectRoot, 'dist', 'daemon', 'index.js');
+
+  if (!existsSync(daemonScript)) {
+    console.error(`[dreamstate] Daemon script not found: ${daemonScript}`);
+    console.error(`[dreamstate] Run 'npm run build' in the dreamstate directory`);
+    return;
+  }
+
   const isWindows = process.platform === 'win32';
 
-  const spawnOptions = {
-    cwd: projectRoot,
-    detached: true,
-    stdio: 'ignore' as const,
-    env: { ...process.env, DREAMSTATE_WORKSPACE: workspace },
-    shell: isWindows, // Required for detached processes on Windows
-    windowsHide: true
-  };
+  if (isWindows) {
+    // On Windows, use a VBS script to launch node truly hidden
+    // This avoids the terminal window that appears with detached + shell
+    const vbsPath = join(dreamstateDir, 'launch-daemon.vbs');
+    const vbsContent = `
+Set WshShell = CreateObject("WScript.Shell")
+WshShell.Run "node ""${daemonScript.replace(/\\/g, '\\\\')}""", 0, False
+`.trim();
 
-  const daemon = isWindows
-    ? spawn('npm', ['run', 'daemon'], spawnOptions)
-    : spawn('npm', ['run', 'daemon'], spawnOptions);
+    writeFileSync(vbsPath, vbsContent);
 
-  daemon.unref();
-  console.log(`[dreamstate] Daemon started (PID: ${daemon.pid})`);
+    // Run the VBS script which will launch node hidden
+    const vbs = spawn('wscript', [vbsPath], {
+      cwd: projectRoot,
+      detached: true,
+      stdio: 'ignore',
+      env: { ...process.env, DREAMSTATE_WORKSPACE: workspace },
+    });
+    vbs.unref();
+
+    // Wait briefly for daemon to start and write its PID
+    setTimeout(() => {
+      if (existsSync(pidFile)) {
+        const pid = readFileSync(pidFile, 'utf-8').trim();
+        console.log(`[dreamstate] Daemon started (PID: ${pid})`);
+      } else {
+        console.log(`[dreamstate] Daemon started`);
+      }
+    }, 500);
+  } else {
+    // On Unix, standard detached spawn works fine
+    const daemon = spawn('node', [daemonScript], {
+      cwd: projectRoot,
+      detached: true,
+      stdio: 'ignore',
+      env: { ...process.env, DREAMSTATE_WORKSPACE: workspace },
+    });
+
+    daemon.unref();
+    console.log(`[dreamstate] Daemon started (PID: ${daemon.pid})`);
+  }
 }
 
 main();

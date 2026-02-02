@@ -9,7 +9,7 @@ Background daemon that watches files, detects idle state, manages token budgets,
 - `Daemon` - Main daemon class with start/stop lifecycle
 - `IPC` - File-based inter-process communication
 - `FileWatcher` - Watches files for changes and @dreamstate directives
-- `IdleDetector` - Tracks activity and triggers idle callbacks
+- `DreamDetector` - Tracks activity and triggers dream callbacks
 - `TokenBudgetTracker` - Manages hourly token spending limits
 - `runClaude` - Spawns claude CLI with prompts
 - `runClaudeAgent` - Runs claude with a specific agent name
@@ -24,13 +24,13 @@ Background daemon that watches files, detects idle state, manages token budgets,
                               |
           +-------------------+-------------------+
           |           |           |               |
-    +-----+----+ +----+----+ +----+-----+ +------+------+
-    |FileWatcher| |IdleDetector| |TokenBudget| |    IPC     |
-    |(chokidar) | |(activity)  | |(limits)   | |(file-based)|
-    +-----+-----+ +-----+------+ +-----+-----+ +------+-----+
-          |             |              |              |
-          v             v              v              v
-    [file changes] [idle events] [budget checks] [.dreamstate/]
+    +-----+----+ +-----+-----+ +----+-----+ +------+------+
+    |FileWatcher| |DreamDetector| |TokenBudget| |    IPC     |
+    |(chokidar) | |(activity)   | |(limits)   | |(file-based)|
+    +-----+-----+ +------+------+ +-----+-----+ +------+-----+
+          |              |              |              |
+          v              v              v              v
+    [file changes] [dream events] [budget checks] [.dreamstate/]
           |             |              |              |
           +-------------+------+-------+--------------+
                                |
@@ -47,7 +47,7 @@ Background daemon that watches files, detects idle state, manages token budgets,
 | index.ts | Daemon entry point, orchestrates all components |
 | ipc.ts | File-based IPC: status, tasks, results |
 | file-watcher.ts | Watches files, scans for @dreamstate directives |
-| idle-detector.ts | Tracks activity, triggers idle callbacks |
+| dream-detector.ts | Tracks activity, triggers dream callbacks |
 | token-budget.ts | Hourly token budget tracking and enforcement |
 | claude-cli.ts | Spawns claude CLI processes |
 
@@ -73,9 +73,9 @@ Daemon.start()
   |     +-> chokidar.watch()
   |     +-> scanForDirectives() -> onFileDirective callback
   |     +-> onFileChange callback
-  +-> IdleDetector.start()
+  +-> DreamDetector.start()
   |     +-> setInterval(checkIdle)
-  |     +-> onIdleStart/onIdleEnd callbacks
+  |     +-> onDreamStart/onDreamEnd callbacks
   +-> updateStatus()
   |     +-> TokenBudgetTracker.getStatus()
   |     +-> IPC.writeStatus()
@@ -88,12 +88,12 @@ Daemon.start()
 
 Daemon.processFileDirective()
   +-> TokenBudgetTracker.canSpend()
-  +-> IdleDetector.recordActivity()
+  +-> DreamDetector.recordActivity()
   +-> runClaude()
   +-> TokenBudgetTracker.recordUsage()
 
 Daemon.stop()
   +-> FileWatcher.stop()
-  +-> IdleDetector.stop()
+  +-> DreamDetector.stop()
   +-> IPC.clearPid()
 ```
