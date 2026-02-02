@@ -163,70 +163,20 @@ When determining commit type:
 
 Integration tests verify **full flows**, not isolated units.
 
-**Bad** (unit test):
-```typescript
-test('canSpend returns true when under budget', () => {
-  const budget = new TokenBudget(1000);
-  expect(budget.canSpend(500)).toBe(true);
-});
-```
-
-**Good** (integration test):
-```typescript
-test('daemon rejects file directive when token budget exceeded', async () => {
-  // Setup: create daemon with exhausted budget
-  const daemon = new Daemon(workspace);
-  daemon.tokenBudget.recordUsage('exhaust', 10000, 'haiku');
-
-  // Create a file with @dreamstate directive
-  writeFileSync('test.ts', '// @dreamstate: explain this');
-
-  // Trigger file change
-  daemon.fileWatcher.emit('change', 'test.ts');
-
-  // Wait for processing
-  await sleep(100);
-
-  // Verify: directive was NOT processed
-  expect(spawnClaude).not.toHaveBeenCalled();
-  expect(daemonLogs).toContain('budget exceeded');
-});
-```
+- **Bad**: Test `budget.canSpend(500)` in isolation
+- **Good**: Test "daemon rejects directive when budget exceeded" end-to-end
 
 ### Integration Test Checklist
 
-For EVERY loop, verify:
-
-- [ ] **End-to-end flow**: Does the full feature work from input to output?
-- [ ] **Component interaction**: Do all components work together correctly?
-- [ ] **Error paths**: What happens when things go wrong?
-- [ ] **Edge cases**: Boundary conditions, empty inputs, large inputs
-- [ ] **State changes**: Does state update correctly throughout the flow?
+- [ ] End-to-end flow (input → output)
+- [ ] Component interaction
+- [ ] Error paths
+- [ ] Edge cases
+- [ ] State changes
 
 ### Test Coverage Assessment
 
-In TEST.md, include this section:
-
-```markdown
-## Integration Test Assessment
-
-### Existing Tests
-- {list tests that exist for this loop}
-
-### Missing Tests (CRITICAL)
-- [ ] {flow that's not tested}
-- [ ] {error case not tested}
-- [ ] {integration not verified}
-
-### Test Quality Score
-- Coverage: {1-5} (5 = all flows tested)
-- Integration: {1-5} (5 = full end-to-end tests)
-- Error handling: {1-5} (5 = all error paths tested)
-
-### Recommended Test Additions
-1. {specific test to add}
-2. {specific test to add}
-```
+In TEST.md, include: Existing Tests, Missing Tests (CRITICAL), Test Quality Score (Coverage/Integration/Error handling 1-5), Recommended Test Additions.
 
 ### When to Block Commit
 

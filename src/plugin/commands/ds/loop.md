@@ -146,78 +146,9 @@ When a natural language prompt is provided (e.g., `/ds:loop "add user authentica
 
    **Reference:** See `src/plugin/references/loop-plan-structure.md` for full spec.
 
-   ```markdown
-   # Loop: {prompt}
-
-   ## Status
-   - Type: implementation
-   - Created: {timestamp}
-   - Status: proposed
-
-   ## Current Test Status
-
-   **Run to verify current state:**
-   ```bash
-   npm run build
-   npm test
-   ```
-
-   **Current state:**
-   - Build: {passing|failing}
-   - Tests: {X passing, Y failing}
-   - Relevant failing tests:
-     - `{test}`: {what it reveals about the problem}
-
-   ## Context
-   {What exists now, relevant files, current patterns}
-
-   ## Problem Statement
-   {What specific problem this loop solves}
-
-   ## Objective
-   {What needs to be accomplished - measurable outcome}
-
-   ## Implementation Spec
-
-   ### Files to Modify
-   | File | Current State | Changes Required |
-   |------|---------------|------------------|
-   | {path} | {current behavior} | {what to change} |
-
-   ### Files to Create
-   | File | Purpose | Key Exports |
-   |------|---------|-------------|
-   | {path} | {why needed} | {public API} |
-
-   ### Implementation Steps
-   1. {Step 1 - specific file and change}
-   2. {Step 2 - specific file and change}
-   ...
-
-   ## Acceptance Criteria
-
-   **All criteria must be testable:**
-
-   - [ ] **{Criterion 1}**
-     - Verify: `{command or file check}`
-     - Expected: {what success looks like}
-
-   - [ ] **{Criterion 2}**
-     - Verify: `{command or file check}`
-     - Expected: {what success looks like}
-
-   ## Test Plan
-
-   ### Tests to Run
-   ```bash
-   npm test -- --grep "{relevant tests}"
-   ```
-
-   ### Expected Post-Implementation
-   - Build: passing
-   - Tests: all passing
-   - New functionality: {verified how}
-   ```
+   Include: Status, Current Test Status, Context, Problem Statement, Objective,
+   Implementation Spec (files to modify/create, steps), Acceptance Criteria
+   (with verify commands), Test Plan.
 
 4. **Show the plan to user:**
    ```
