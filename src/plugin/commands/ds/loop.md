@@ -19,14 +19,15 @@ Execute loops from plan drafts, loop plans, or natural language prompts. Support
 /ds:loop [args...]
 
 Modes:
-  /ds:loop plan                # Show all unimplemented loops (NO execution)
-  /ds:loop "add dark mode"     # Plan THEN implement from prompt
-  /ds:loop                     # Find plan_draft.md, run single loop
-  /ds:loop ./my-draft.md       # Run loop from specific draft file
-  /ds:loop 06                  # Run loop 06 from active loop plan
-  /ds:loop 06 07 08            # Run multiple loops in order
-  /ds:loop 06..10              # Run loops 06 through 10
-  /ds:loop --all               # Run all pending loops from active plan
+  /ds:loop plan                    # Show all unimplemented loops (NO execution)
+  /ds:loop plan "add dark mode"    # Plan ONLY - create plan, report for review (NO implementation)
+  /ds:loop "add dark mode"         # Plan THEN implement from prompt
+  /ds:loop                         # Find plan_draft.md, run single loop
+  /ds:loop ./my-draft.md           # Run loop from specific draft file
+  /ds:loop 06                      # Run loop 06 from active loop plan
+  /ds:loop 06 07 08                # Run multiple loops in order
+  /ds:loop 06..10                  # Run loops 06 through 10
+  /ds:loop --all                   # Run all pending loops from active plan
 
 Options:
   --plan {path}   Path to loop plan folder (default: most recent in .dreamstate/loop_plans/)
@@ -39,8 +40,13 @@ Parse arguments to determine execution mode:
 
 ```
 IF first arg is "plan":
-  mode = "plan"
-  → Summarize all unimplemented loops (NO execution)
+  IF more args exist:
+    mode = "plan-only"
+    prompt = remaining args joined
+    → Create plan, report for review (NO implementation)
+  ELSE:
+    mode = "plan"
+    → Summarize all unimplemented loops (NO execution)
 
 ELSE IF first arg is a quoted string or natural language (not a path, number, or flag):
   mode = "prompt"
@@ -120,6 +126,72 @@ When `ds:loop plan` is called:
 
 4. **DO NOT execute anything.** This is purely informational.
 </execution-mode-plan>
+
+<execution-mode-plan-only>
+## Mode: Plan Only (with prompt)
+
+When `ds:loop plan "prompt"` is called (e.g., `/ds:loop plan "add user auth"`):
+
+**Purpose:** Create a plan from the prompt, analyze feasibility, report for review. NO implementation.
+
+1. **Create loop plan folder:**
+   ```
+   .dreamstate/loop_plans/{timestamp}-{slug}/
+   ```
+
+2. **Analyze codebase and create DRAFT.md:**
+   - Read relevant source files based on prompt
+   - Identify files that would need modification
+   - Check existing patterns and conventions
+   - Run `npm run build && npm test` to capture baseline
+
+3. **Spawn ds-planner for detailed plan:**
+   ```
+   Task: ds-planner
+   Input: DRAFT.md, STATE.md
+   Output: PLAN.md with tasks, files, acceptance criteria
+   ```
+
+4. **Analyze the plan for issues:**
+   - Estimate complexity (files touched, new dependencies)
+   - Identify risks (breaking changes, untested areas)
+   - Check if acceptance criteria are testable
+   - Assess value vs effort
+
+5. **Report for review:**
+   ```
+   Loop Plan: {prompt}
+   ━━━━━━━━━━━━━━━━━━━━━
+   Location: .dreamstate/loop_plans/{folder}/
+
+   ## Summary
+   {2-3 sentence overview}
+
+   ## Tasks ({count})
+   1. {task 1} - {files affected}
+   2. {task 2} - {files affected}
+   ...
+
+   ## Complexity Assessment
+   - Files to modify: {count}
+   - Files to create: {count}
+   - Estimated risk: {low|medium|high}
+   - Dependencies: {any new deps?}
+
+   ## Potential Issues
+   - {issue 1}
+   - {issue 2}
+
+   ## Recommendation
+   {Worth implementing? Suggested changes to scope?}
+
+   ---
+   To implement: /ds:loop {folder}
+   To modify plan: Edit .dreamstate/loop_plans/{folder}/PLAN.md
+   ```
+
+6. **DO NOT spawn executor or tester.** Stop after planning.
+</execution-mode-plan-only>
 
 <execution-mode-prompt>
 ## Mode: Prompt → Plan → Implement
