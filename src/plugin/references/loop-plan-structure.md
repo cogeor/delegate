@@ -220,7 +220,7 @@ Implementation loops (from ds:loop) follow this flow:
    - Checks acceptance criteria
    - Creates TEST.md with quality scores
 
-4. **Commit Phase** (ds-coordinator)
+4. **Commit Phase** (ds:loop command)
    - If tests pass, commits changes
    - Creates COMMIT.md with hash
 

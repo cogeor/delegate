@@ -90,12 +90,13 @@ bin/
 
 | Agent | Role |
 |-------|------|
-| `ds-coordinator` | Orchestrates loops, manages task flow |
 | `ds-planner` | Creates implementation plans from drafts |
 | `ds-executor` | Implements specific tasks from plans |
 | `ds-tester` | Verifies implementation, runs tests |
 | `ds-audit-planner` | Explores and plans during audit mode |
 | `ds-doc-generator` | Generates documentation during audit mode |
+
+**Note:** Loop coordination (spawning planner → executor → tester) is done by `/ds:loop` command directly.
 
 ## Configuration
 

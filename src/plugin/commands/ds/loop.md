@@ -168,31 +168,45 @@ When a natural language prompt is provided (e.g., `/ds:loop "add user authentica
    Proceeding with implementation...
    ```
 
-### Phase 2: Implementation
+### Phase 2: Execution (3-phase loop)
 
 5. **Create loop execution folder:**
    ```
    .dreamstate/loops/{timestamp}-{slug}/
    ```
    - Copy DRAFT.md from loop plan
-   - Create STATUS.md with "started" state
+   - Create STATUS.md with `phase: planning`
 
-6. **Spawn ds-coordinator agent:**
+6. **Planning phase - Spawn ds-planner:**
    ```
-   Task: ds-coordinator
-   Prompt: Execute loop in {loop_folder}
-   - Read DRAFT.md for requirements
-   - Run planning phase → write PLAN.md (detailed steps)
-   - Run implementation phase → write IMPLEMENTATION.md
-     - CAN modify source code
-     - CAN create new files
-     - CAN run build/test commands
-   - Run testing phase → write TEST.md
-   - Update STATUS.md on completion
-   - Commit changes with descriptive message
+   Task: ds-planner
+   Prompt: Create implementation plan from DRAFT.md
+   Input: {loop_folder}/DRAFT.md, .dreamstate/STATE.md
+   Output: {loop_folder}/PLAN.md
    ```
+   - Update STATUS.md: `phase: implementing`
 
-7. **Report results:**
+7. **Implementation phase - Spawn ds-executor (per task):**
+   ```
+   Task: ds-executor
+   Prompt: Implement task {N} from PLAN.md
+   Input: Task spec from PLAN.md
+   Output: Code changes, append to IMPLEMENTATION.md
+   ```
+   - Run sequentially for each task in PLAN.md
+   - Update STATUS.md: `phase: testing`
+
+8. **Testing phase - Spawn ds-tester:**
+   ```
+   Task: ds-tester
+   Prompt: Verify implementation matches plan
+   Input: PLAN.md, IMPLEMENTATION.md
+   Output: {loop_folder}/TEST.md
+   ```
+   - If `Ready for Commit: yes` → commit and update STATUS.md: `phase: complete`
+   - If `Ready for Commit: no` → update STATUS.md: `phase: failed`
+
+9. **Report results:**
    ```
    Loop Complete: {prompt}
    ━━━━━━━━━━━━━━━━━━━━━━━
@@ -234,18 +248,13 @@ When running from a plan draft file:
 
 3. Create the folder and initialize:
    - Copy plan draft as DRAFT.md
-   - Create STATUS.md with "started" state
+   - Create STATUS.md with `phase: planning`
 
-4. Spawn ds-coordinator agent:
-   ```
-   Task: ds-coordinator
-   Prompt: Execute loop in {loop_folder}
-   - Read DRAFT.md for requirements
-   - Run planning phase → write PLAN.md
-   - Run implementation phase → write IMPLEMENTATION.md
-   - Run testing phase → write TEST.md
-   - Update STATUS.md on completion
-   ```
+4. Run 3-phase execution (same as prompt mode):
+   - Spawn ds-planner → PLAN.md
+   - Spawn ds-executor (per task) → IMPLEMENTATION.md
+   - Spawn ds-tester → TEST.md
+   - Commit on success
 
 5. Report results to user
 </execution-mode-draft>
@@ -287,8 +296,7 @@ When running specific loops from a loop plan:
 
 5. **Execute loops:**
    For each loop in order:
-   - Spawn ds-coordinator agent
-   - Wait for completion
+   - Run 3-phase execution (ds-planner → ds-executor(s) → ds-tester)
    - Update manifest status
    - Commit after each loop completes
 

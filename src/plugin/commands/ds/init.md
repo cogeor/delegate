@@ -110,7 +110,6 @@ This project uses the Dreamstate plugin for spec-driven development.
 **Agents:**
 | Name | Role |
 |------|------|
-| `ds-coordinator` | Orchestrates loops |
 | `ds-planner` | Creates implementation plans |
 | `ds-executor` | Implements tasks |
 | `ds-tester` | Verifies implementation |

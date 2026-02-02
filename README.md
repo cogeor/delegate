@@ -145,7 +145,7 @@ Authentication uses session cookies, need stateless JWT.
 
 **Plugin** (`src/plugin/`)
 - Commands: `/ds:audit`, `/ds:loop`, `/ds:status`, etc.
-- Agents: ds-audit-planner, ds-coordinator, ds-planner, ds-executor, ds-tester
+- Agents: ds-audit-planner, ds-planner, ds-executor, ds-tester
 
 **Daemon** (`src/daemon/`)
 - File watcher: Monitors `.dreamstate/` for tasks

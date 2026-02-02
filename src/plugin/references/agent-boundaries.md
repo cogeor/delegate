@@ -10,12 +10,13 @@ Claude Code agents are defined with `allowed-tools` in their YAML frontmatter. T
 
 | Agent | Read | Write | Edit | Glob | Grep | Bash | Task | WebSearch |
 |-------|------|-------|------|------|------|------|------|-----------|
-| ds-coordinator | ✓ | ✓ | - | ✓ | ✓ | ✓ | ✓ | - |
 | ds-planner | ✓ | ✓ | - | ✓ | ✓ | - | - | - |
 | ds-executor | ✓ | ✓ | ✓ | - | - | ✓ | - | - |
 | ds-tester | ✓ | ✓ | - | ✓ | ✓ | ✓ | - | - |
-| ds-audit-planner | ✓ | ✓ | - | ✓ | ✓ | - | - | ✓ |
+| ds-audit-planner | ✓ | ✓ | - | ✓ | ✓ | ✓ | - | ✓ |
 | ds-doc-generator | ✓ | ✓ | - | ✓ | - | - | - | - |
+
+**Note:** Loop coordination (spawning planner/executor/tester) is done by the `/ds:loop` command directly, not by an agent.
 
 ## Rationale
 
@@ -34,11 +35,6 @@ Claude Code agents are defined with `allowed-tools` in their YAML frontmatter. T
 - **Effect**: Documents one file at a time without searching
 - **Alternative**: Receives explicit file path to document
 
-### ds-coordinator: Has Task
-- **Why**: Only agent that can spawn other agents
-- **Effect**: Orchestrates the loop without doing direct work
-- **Alternative**: N/A - this is intentional
-
 ### ds-tester: Has Bash
 - **Why**: Needs to run tests and verify build
 - **Effect**: Can execute `npm test`, `npm run build`, etc.
@@ -48,11 +44,10 @@ Claude Code agents are defined with `allowed-tools` in their YAML frontmatter. T
 
 Beyond tool restrictions, agents follow these context rules:
 
-1. **Coordinator**: Sees loop state, not implementation details
-2. **Planner**: Sees draft and project structure, not execution logs
-3. **Executor**: Sees task spec, not other tasks or loops
-4. **Tester**: Sees implementation to verify, not planning rationale
-5. **Audit Planner**: Sees templates, src/ code, and mission based on audit type
+1. **Planner**: Sees draft and project structure, not execution logs
+2. **Executor**: Sees task spec, not other tasks or loops
+3. **Tester**: Sees implementation to verify, not planning rationale
+4. **Audit Planner**: Sees templates, src/ code, and mission based on audit type
 
 ## Enforcement Verification
 

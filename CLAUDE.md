@@ -52,7 +52,7 @@ Agent system prompt
 
 **Hooks** (configured via `bin/install.ts`):
 - `SessionStart`: Auto-starts daemon
-- `UserPromptSubmit`: Triggers auto-audit when idle
+- `UserPromptSubmit`: Processes daemon requests (e.g., auto-audit when idle)
 - `SessionEnd`: Cleans up daemon on exit
 
 ## Project Structure
