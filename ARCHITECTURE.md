@@ -70,6 +70,7 @@ src/
 |   +-- token-budget.ts    # Hourly token spending limits
 |   +-- claude-cli.ts      # Spawn claude processes
 |   +-- ipc.ts             # File-based IPC
+|   +-- providers/         # LLM provider implementations
 +-- plugin/
 |   +-- commands/ds/       # Slash commands
 |   +-- agents/            # Agent definitions
