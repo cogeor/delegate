@@ -1,6 +1,6 @@
 ---
-name: ds:dream
-description: Enter dream mode - continuously explore and refine until /ds:wake
+name: ds:audit
+description: Enter audit mode - continuously explore and analyze the codebase
 allowed-tools:
   - Read
   - Write
@@ -12,46 +12,46 @@ allowed-tools:
 ---
 
 <objective>
-Enter dream mode with a specified model. Continuously iterate on exploration, code analysis, and external research until stopped with /ds:wake.
+Enter audit mode with a specified model. Continuously iterate on exploration, code analysis, and external research until interrupted or max_iterations is reached.
 </objective>
 
 <usage>
-/ds:dream [model] [theme]
+/ds:audit [model] [theme]
 
 Arguments:
   model - haiku (default), sonnet, or opus
   theme - Optional overarching theme that guides ALL iterations
 
 The theme is NOT a one-time task. It's a lens through which every iteration views its work.
-Dream mode continues iterating until /ds:wake or max_iterations is reached.
+Audit mode continues iterating until interrupted or max_iterations is reached.
 
 Examples:
-  /ds:dream
-  /ds:dream haiku
-  /ds:dream sonnet "test coverage"           # Every iteration focuses on testing
-  /ds:dream "error handling"                  # All iterations examine error handling
-  /ds:dream opus "daemon architecture"        # Deep dive into daemon across all phases
+  /ds:audit
+  /ds:audit haiku
+  /ds:audit sonnet "test coverage"           # Every iteration focuses on testing
+  /ds:audit "error handling"                  # All iterations examine error handling
+  /ds:audit opus "daemon architecture"        # Deep dive into daemon across all phases
 
 If first argument is not a model name, it's treated as the theme (uses haiku).
 </usage>
 
 <behavior>
-Dream mode is a CONTINUOUS process that keeps running until /ds:wake is called.
+Audit mode is a CONTINUOUS process that keeps running until interrupted.
 
-Each iteration selects a dream TYPE and executes that exploration (4-phase cycle):
+Each iteration selects an audit TYPE and executes that exploration (4-phase cycle):
 - [T] Template - explore .dreamstate/templates/ for patterns
 - [I] Introspect - analyze src/ code for improvements
 - [R] Research - search web for external patterns
 - [V] Verify - run build, run tests, create tests for missing coverage
 
-The [V] Verify phase GROUNDS dreams in reality by actually executing code.
+The [V] Verify phase GROUNDS audits in reality by actually executing code.
 
 The human can check progress anytime with /ds:status.
-To stop: /ds:wake
+To stop: interrupt the process (Ctrl+C).
 </behavior>
 
-<dream-types>
-## Dream Type Selection
+<audit-types>
+## Audit Type Selection
 
 Each iteration deterministically selects ONE type based on iteration number (4-phase cycle):
 - Iteration 1, 5, 9, 13...  → [T] Template
@@ -91,7 +91,7 @@ Each iteration deterministically selects ONE type based on iteration number (4-p
 - Create test files (*.test.ts only) for missing coverage
 - Output insight includes build/test status (e.g., "build OK, 5/8 tests pass")
 - MUST NOT modify non-test source code
-</dream-types>
+</audit-types>
 
 <execution>
 1. Parse arguments:
@@ -106,15 +106,15 @@ Each iteration deterministically selects ONE type based on iteration number (4-p
      theme = all args joined
    ```
 
-2. Check if already in dream mode:
-   - Read .dreamstate/dream.state
-   - If active, report "Already in dream mode. Use /ds:wake to stop."
+2. Check if already in audit mode:
+   - Read .dreamstate/audit.state
+   - If active, report "Already in audit mode. Interrupt to stop."
 
 3. Create or continue loop plan:
-   - If no active plan, create new: .dreamstate/loop_plans/{timestamp}-dream-session/
+   - If no active plan, create new: .dreamstate/loop_plans/{timestamp}-audit-session/
    - If resuming, use existing plan
 
-4. Initialize dream state:
+4. Initialize audit state:
    ```json
    {
      "active": true,
@@ -128,13 +128,13 @@ Each iteration deterministically selects ONE type based on iteration number (4-p
      "session_summaries": []
    }
    ```
-   Write to .dreamstate/dream.state
+   Write to .dreamstate/audit.state
 
-   **Note**: Preserve existing `session_summaries` from previous dream.state if present.
+   **Note**: Preserve existing `session_summaries` from previous audit.state if present.
 
 5. If theme provided, write to {loop_plan}/THEME.md:
    ```markdown
-   # Dream Session Theme
+   # Audit Session Theme
 
    > This theme guides ALL iterations. It is not a one-time task.
    > Every iteration should view its work through this lens.
@@ -155,35 +155,35 @@ Each iteration deterministically selects ONE type based on iteration number (4-p
 
 6. Start iteration loop:
    ```
-   max_iterations = config.daemon.auto_dream.max_iterations
+   max_iterations = config.daemon.auto_audit.max_iterations
    # Find config value: grep "max_iterations" .dreamstate/config.json
 
    # Load previous session summaries for context injection
-   previous_summaries = dream.state.session_summaries (or [] if none)
+   previous_summaries = audit.state.session_summaries (or [] if none)
 
-   WHILE dream.state.active == true:
-     - Determine dream type: (iterations % 4) → 0=[T], 1=[I], 2=[R], 3=[V]
+   WHILE audit.state.active == true:
+     - Determine audit type: (iterations % 4) → 0=[T], 1=[I], 2=[R], 3=[V]
      - Read current loop plan
      - Read THEME.md if exists (this guides ALL iterations, not just one)
      - Build "Previous Sessions" section from previous_summaries
-     - Spawn ds-dream-planner with:
+     - Spawn ds-audit-planner with:
          model={model}
-         dream_type={type}
+         audit_type={type}
          prompt=See "Iteration Prompt Template" below
      - Agent appends ONE table row to ITERATIONS.md (with Type column)
      - Increment iterations
-     - Update dream.state
-     - Check if /ds:wake was called (dream.state.active == false)
+     - Update audit.state
+     - Check if interrupted (audit.state.active == false)
 
      - IF iterations >= max_iterations:
          - Stop loop
-         - Output: "Reached {max_iterations} iterations. Run /ds:dream to continue with fresh context."
-         - Set dream.state.active = false
+         - Output: "Reached {max_iterations} iterations. Run /ds:audit to continue with fresh context."
+         - Set audit.state.active = false
 
      - Brief pause (5 seconds)
    ```
 
-7. On dream mode stop (via /ds:wake or max_iterations reached):
+7. On audit mode stop (via interrupt or max_iterations reached):
    ```
    - Read ITERATIONS.md from current session
    - Extract key findings (look for ## Findings section or last 3 iterations)
@@ -193,14 +193,14 @@ Each iteration deterministically selects ONE type based on iteration number (4-p
        "iterations": {count},
        "summary": "{theme or 'General exploration'}: {key findings}"
      }
-   - Append to dream.state.session_summaries
+   - Append to audit.state.session_summaries
    - Keep only last 5 session summaries (prevent unbounded growth)
-   - Write updated dream.state
+   - Write updated audit.state
    ```
 
-8. Report dream mode started:
+8. Report audit mode started:
    ```
-   Dream Mode Active
+   Audit Mode Active
    ━━━━━━━━━━━━━━━━━
    Model: {model}
    Theme: {theme or "General exploration"}
@@ -209,17 +209,16 @@ Each iteration deterministically selects ONE type based on iteration number (4-p
    Types: [T]emplate → [I]ntrospect → [R]esearch → [V]erify (4-phase cycle)
 
    The theme guides ALL iterations - it's not a one-time task.
-   Dream mode will continuously iterate until /ds:wake or max_iterations.
+   Audit mode will continuously iterate until interrupted or max_iterations.
    Check progress: /ds:status
-   Stop with: /ds:wake
    ```
 </execution>
 
 <iteration-prompt-template>
-When spawning ds-dream-planner, use this prompt structure:
+When spawning ds-audit-planner, use this prompt structure:
 
 ```markdown
-# Dream Mode Iteration {N} of {max_iterations}
+# Audit Mode Iteration {N} of {max_iterations}
 
 ## Session Theme (APPLIES TO ALL ITERATIONS)
 {If THEME.md exists:}
@@ -229,7 +228,7 @@ Do NOT treat this as a one-time task - it's an overarching direction.
 
 {If no theme: "General exploration - no specific theme."}
 
-## Dream Type: {type}
+## Audit Type: {type}
 This iteration is type **{type}**:
 - [T] = Explore .dreamstate/templates/ for patterns related to theme
 - [I] = Analyze src/ code for improvements related to theme
@@ -242,7 +241,7 @@ Execute ONLY this type's workflow, but always through the theme lens.
 {For each session in session_summaries:}
 - {sessionId} ({iterations} iter): {summary}
 
-{If no previous sessions: "First dream session - no prior context."}
+{If no previous sessions: "First audit session - no prior context."}
 
 ## Step 1: Read Previous Context (MANDATORY)
 Before any work, understand what exists:
@@ -250,7 +249,7 @@ Before any work, understand what exists:
 2. Read .dreamstate/loops/*/STATUS.md for completed work
 3. Note what's been done to avoid duplicates
 
-## Step 2: Execute Dream Type (Through Theme Lens)
+## Step 2: Execute Audit Type (Through Theme Lens)
 
 ### If [T] Template:
 1. Check if .dreamstate/templates/ exists and has useful content
@@ -277,24 +276,41 @@ Before any work, understand what exists:
 
 ### If [V] Verify:
 1. Run `npm run build` - verify code compiles
-2. Run `npm test` - see current test status
-3. Focus on testing theme-related functionality
+2. Run `npm test` - capture full test status (pass/fail counts)
+3. Document which tests fail and WHY (this informs future loops)
 4. Create test files for untested modules (*.test.ts only)
-5. Insight should include build/test status
+5. Failing tests are VALUABLE - they highlight problems to solve
+6. Insight should include: "build {OK|FAIL}, {X}/{Y} tests pass"
+7. Loop draft should document test status as baseline
 
-## Step 3: Task
-Based on dream type findings:
-- Expand an existing loop with more detail
-- OR create a new loop based on discovered patterns
-- OR update MISSION.md with insights
+## Step 3: Create Loop Draft (MANDATORY)
+**Each iteration = 1 loop.** You MUST create artifacts:
 
-## Output: ONE Table Row
-Append exactly one row to ITERATIONS.md:
-| {N} | {time} | {type} | {action} | {target} | {insight} |
+**Reference:** See `src/plugin/references/loop-plan-structure.md` for full spec.
 
-No prose. No explanations. Just the table row.
+1. **ITERATIONS.md** - Append ONE table row:
+   | {N} | {time} | {type} | {action} | {target} | {insight} |
 
-**IMPORTANT: This is iteration {N} of {max_iterations}. Dream mode continues until /ds:wake or max reached.**
+2. **OVERVIEW.md** - Create on iteration 1, update on subsequent iterations:
+   - Include current baseline (build/test status)
+   - Add new loop entry to Implementation Loops table
+   - Update dependencies if relevant
+
+3. **{NN}-{slug}.md** - Create loop draft file with FULL structure:
+   - Status section (type: audit, status: proposed)
+   - Current Test Status (run npm test, document what passes/fails)
+   - Context (what you discovered)
+   - Problem Statement (what this loop solves)
+   - Objective (measurable outcome)
+   - Implementation Spec (files to modify, steps)
+   - Acceptance Criteria (TESTABLE - include verify command for each)
+   - Test Plan (tests to create, expected post-implementation state)
+
+**Every iteration produces a complete loop draft. No exceptions.**
+
+**Audit loops CAN create test files to validate assumptions.**
+
+**IMPORTANT: This is iteration {N} of {max_iterations}. Audit mode continues until interrupted or max reached.**
 
 ## Loop Plan Location
 {path to current loop plan}
@@ -302,35 +318,109 @@ No prose. No explanations. Just the table row.
 </iteration-prompt-template>
 
 <iteration-log>
-ITERATIONS.md uses compact table format with Type column:
+## Output Structure Per Iteration
 
+Each iteration produces THREE artifacts:
+
+### 1. ITERATIONS.md (table row)
 ```markdown
-# Dream Session: {session-id}
+# Audit Session: {session-id}
 Theme: {theme or "General"} | Model: {model} | Limit: {max_iterations}
-
-## Previous Context
-- loop-01: {one-liner summary of what it does}
-- loop-02: {one-liner summary}
 
 ## Iterations
 | # | Time | Type | Action | Target | Insight |
 |---|------|------|--------|--------|---------|
 | 1 | 00:05 | [T] | discover | templates/workflow | state machine pattern |
 | 2 | 00:12 | [I] | analyze | daemon/index | nesting in processTask |
-| 3 | 00:20 | [R] | research | file-watchers | chokidar debounce |
-| 4 | 00:28 | [V] | verify | npm test | build OK, 3/5 tests pass |
-| 5 | 00:35 | [T→I] | fallback | templates stale | daemon/ipc needs error handling |
 ```
 
-Each iteration appends ONE row. No prose between rows.
+### 2. OVERVIEW.md (created iteration 1, updated each iteration)
+```markdown
+# Audit Session: {session-id}
 
-Fields:
-- `{#}`: Iteration number
-- `{Time}`: MM:SS from session start
-- `{Type}`: [T], [I], [R], [V], or [T→I] (fallback from stale template)
-- `{Action}`: discover|connect|refine|design|reflect|research|analyze|verify|test|fallback
-- `{Target}`: Short identifier (file path, loop-id, search topic)
-- `{Insight}`: What you learned (max 10 words)
+## Vision
+{What this session aims to discover/improve}
 
-**Max 100 lines total.** If approaching limit, summarize older iterations.
+## Implementation Loops
+| # | Loop | Scope | Status | Description |
+|---|------|-------|--------|-------------|
+| 01 | state-machine-pattern | analysis | pending | Extract state machine from templates |
+| 02 | process-task-refactor | implementation | pending | Flatten nesting in processTask |
+```
+
+### 3. Loop Draft File ({NN}-{slug}.md)
+
+**Reference:** See `src/plugin/references/loop-plan-structure.md` for full spec.
+
+```markdown
+# Loop 01: State Machine Pattern
+
+## Status
+- Type: audit
+- Created: 2026-02-02T10:05:00Z
+- Status: proposed
+
+## Current Test Status
+
+**Run to verify:**
+```bash
+npm run build && npm test
+```
+
+**Current state:**
+- Build: passing
+- Tests: 12 passing, 3 failing
+- Relevant failing tests:
+  - `daemon state transitions`: invalid state not caught
+  - `process cleanup`: orphaned processes on error
+
+**What failures indicate:**
+State management is implicit, leading to invalid transitions.
+
+## Context
+Read templates/workflow.md, found state machine pattern that explicitly
+models valid transitions and prevents invalid states.
+
+## Problem Statement
+Daemon has implicit state that can become inconsistent, especially
+during error recovery. Need explicit state machine.
+
+## Objective
+Extract and apply state machine pattern to daemon to prevent invalid states.
+
+## Implementation Spec
+
+### Files to Modify
+| File | Current State | Changes Required |
+|------|---------------|------------------|
+| src/daemon/index.ts | Implicit state via flags | Add state machine |
+| src/shared/types.ts | No state types | Add DaemonState enum |
+
+### Implementation Steps
+1. Create DaemonState enum in shared/types.ts
+2. Create state transition validator
+3. Refactor daemon/index.ts to use state machine
+4. Update tests to verify state transitions
+
+## Acceptance Criteria
+
+- [ ] **State transitions are explicit**
+  - Verify: `grep -r "setState" src/daemon/`
+  - Expected: All state changes go through setState()
+
+- [ ] **Invalid transitions throw**
+  - Verify: `npm test -- --grep "state"`
+  - Expected: Tests verify invalid transitions throw
+
+## Test Plan
+
+### Tests to Create
+- `src/daemon/state.test.ts`: Tests valid/invalid transitions
+
+### Expected Post-Implementation
+- Build: passing
+- Tests: 15 passing, 0 failing (3 fixed + 3 new)
+```
+
+**Every iteration = 1 complete loop draft. No exceptions.**
 </iteration-log>

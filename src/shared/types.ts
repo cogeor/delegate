@@ -41,14 +41,14 @@ export interface FileChangePayload {
 export interface Config {
   daemon: {
     provider: ProviderName;    // LLM provider (claude, opencode, codex, auto)
-    dream_timeout_minutes: number;
+    audit_timeout_minutes: number;
     token_budget_per_hour: number;
     model: string;
-    auto_dream: {
-      enabled: boolean;        // Whether to request dream mode when user is idle
-      model: 'haiku' | 'sonnet' | 'opus';  // Model to use for auto-dream
-      max_iterations: number;  // Max iterations per dream session (throttle)
-      prompt?: string;         // Optional focus prompt for dream sessions
+    auto_audit: {
+      enabled: boolean;        // Whether to request audit mode when user is idle
+      model: 'haiku' | 'sonnet' | 'opus';  // Model to use for auto-audit
+      max_iterations: number;  // Max iterations per audit session (throttle)
+      prompt?: string;         // Optional focus prompt for audit sessions
     };
   };
   watch: {
@@ -64,7 +64,7 @@ export interface Config {
 
 export interface DaemonRequest {
   id: string;
-  action: 'start-dream' | 'stop-dream';
+  action: 'start-audit' | 'stop-audit';
   model?: string;
   max_iterations?: number;
   prompt?: string;
@@ -111,12 +111,12 @@ export interface LoopPlan {
   executionOrder: string[][]; // Groups of loop IDs that can run in parallel
 }
 
-export interface DreamState {
+export interface AuditState {
   active: boolean;
   startedAt: string | null;
   stoppedAt?: string | null;
   model: string;
-  prompt: string | null;  // User-provided focus/direction
+  theme: string | null;  // User-provided focus/direction
   iterations: number;
   currentLoopPlan: string | null;  // Path to active loop_plan folder
   lastIteration: string | null;

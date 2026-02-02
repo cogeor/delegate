@@ -9,7 +9,7 @@ Dreamstate uses a daemon + plugin architecture for spec-driven development. The 
   +-------------------------------------------------------------+
   |                                                             |
   |  +--------------+  +---------------+  +-------------------+  |
-  |  | File Watcher |  | Dream Detector|  |   Claude CLI      |  |
+  |  | File Watcher |  | Audit Detector|  |   Claude CLI      |  |
   |  | (chokidar)   |  | (activity)    |  |   Interface       |  |
   |  +------+-------+  +-------+-------+  +---------+---------+  |
   |         |                 |                    |            |
@@ -36,7 +36,7 @@ Dreamstate uses a daemon + plugin architecture for spec-driven development. The 
 | Component | Purpose | Location |
 |-----------|---------|----------|
 | **File Watcher** | Monitors workspace for file saves, triggers LLM tasks | `src/daemon/file-watcher.ts` |
-| **Dream Detector** | Tracks Claude Code activity, triggers dream mode | `src/daemon/dream-detector.ts` |
+| **Audit Detector** | Tracks Claude Code activity, triggers audit mode | `src/daemon/audit-detector.ts` |
 | **Token Budget** | Manages hourly token spending limits | `src/daemon/token-budget.ts` |
 | **Claude CLI Interface** | Spawns `claude` processes with prompts | `src/daemon/claude-cli.ts` |
 
@@ -66,7 +66,7 @@ src/
 +-- daemon/
 |   +-- index.ts           # Daemon entry point
 |   +-- file-watcher.ts    # Watch for file saves
-|   +-- dream-detector.ts  # Detect dream state
+|   +-- audit-detector.ts  # Detect idle state, trigger audit
 |   +-- token-budget.ts    # Hourly token spending limits
 |   +-- claude-cli.ts      # Spawn claude processes
 |   +-- ipc.ts             # File-based IPC
@@ -93,8 +93,8 @@ bin/
 | `ds-planner` | Creates implementation plans from drafts |
 | `ds-executor` | Implements specific tasks from plans |
 | `ds-tester` | Verifies implementation, runs tests |
-| `ds-dream-planner` | Explores and plans during dream mode |
-| `ds-doc-generator` | Generates documentation during dream mode |
+| `ds-audit-planner` | Explores and plans during audit mode |
+| `ds-doc-generator` | Generates documentation during audit mode |
 
 ## Configuration
 
@@ -104,10 +104,10 @@ bin/
 {
   "daemon": {
     "provider": "claude",
-    "dream_timeout_minutes": 5,
+    "audit_timeout_minutes": 5,
     "token_budget_per_hour": 10000,
     "model": "haiku",
-    "auto_dream": {
+    "auto_audit": {
       "enabled": false,
       "model": "haiku",
       "max_iterations": 10,

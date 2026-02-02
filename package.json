@@ -8,7 +8,7 @@
     "daemon": "tsx src/daemon/index.ts",
     "daemon:start": "tsx src/daemon/index.ts &",
     "install:claude": "tsx bin/install.ts",
-    "test": "tsx src/test/ping.test.ts",
+    "test": "tsx src/daemon/ipc.test.ts && tsx src/daemon/token-budget.test.ts",
     "validate-docs": "tsx bin/validate-docs.ts"
   },
   "engines": {

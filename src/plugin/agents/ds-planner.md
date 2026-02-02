@@ -26,11 +26,26 @@ You receive:
 
 ## Output Format: PLAN.md
 
+**Reference:** See `src/plugin/references/loop-plan-structure.md` for full spec.
+
 ```markdown
 # Implementation Plan
 
 Created: {timestamp}
 Draft: {brief summary of what was requested}
+Type: implementation
+
+## Current Test Status
+
+**Before implementation:**
+```bash
+npm run build && npm test
+```
+
+- Build: {passing|failing}
+- Tests: {X passing, Y failing}
+- Relevant failing tests:
+  - `{test}`: {what it reveals}
 
 ## Overview
 
@@ -43,13 +58,17 @@ Draft: {brief summary of what was requested}
 **Goal**: {what this task accomplishes}
 
 **Files**:
-- `{path}`: {what to do - create/modify/delete}
+| File | Action | Changes |
+|------|--------|---------|
+| `{path}` | {create|modify|delete} | {what changes} |
 
 **Steps**:
 1. {specific action}
 2. {specific action}
 
-**Verification**: {how to know it's done correctly}
+**Verification**:
+- Command: `{command to verify}`
+- Expected: {what success looks like}
 
 ---
 
@@ -63,12 +82,27 @@ Draft: {brief summary of what was requested}
 
 ## Risks
 
-- {potential issue}: {mitigation}
+| Risk | Likelihood | Mitigation |
+|------|------------|------------|
+| {risk} | {low|medium|high} | {how to address} |
 
-## Success Criteria
+## Acceptance Criteria
 
-- [ ] {measurable outcome}
-- [ ] {measurable outcome}
+**All criteria must be testable:**
+
+- [ ] **{Criterion 1}**
+  - Verify: `{command}`
+  - Expected: {result}
+
+- [ ] **{Criterion 2}**
+  - Verify: `{command}`
+  - Expected: {result}
+
+## Expected Post-Implementation
+
+- Build: passing
+- Tests: all passing ({X} total)
+- New tests: {list any new tests to create}
 ```
 
 ## Planning Guidelines

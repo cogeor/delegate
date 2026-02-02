@@ -1,6 +1,6 @@
 ---
 name: ds:loop
-description: Start a plan/implement/test loop from a plan draft or loop plan
+description: Start a plan/implement/test loop from a plan draft or loop plan (user)
 allowed-tools:
   - Read
   - Write
@@ -110,7 +110,7 @@ When `ds:loop plan` is called:
    └── Loop 10: Dependency resolution [pending, depends: 09]
        → Resolve loop dependencies before execution
 
-   Loop Plan: 20260201-dream-session
+   Loop Plan: 20260201-audit-session
    └── (no pending loops)
 
    Total: 3 unimplemented loops across 2 plans
@@ -126,9 +126,9 @@ When `ds:loop plan` is called:
 
 When a natural language prompt is provided (e.g., `/ds:loop "add user authentication"`):
 
-**This mode creates a plan FIRST, then implements it.** Unlike dream mode, this CAN modify source code.
+**This mode creates a plan FIRST, then implements it.** Unlike audit mode, this CAN modify source code.
 
-### Phase 1: Planning (like dreaming)
+### Phase 1: Planning (like auditing)
 
 1. **Create loop plan folder:**
    ```
@@ -143,33 +143,80 @@ When a natural language prompt is provided (e.g., `/ds:loop "add user authentica
    - Check existing patterns and conventions
 
 3. **Create DRAFT.md with implementation plan:**
+
+   **Reference:** See `src/plugin/references/loop-plan-structure.md` for full spec.
+
    ```markdown
    # Loop: {prompt}
+
+   ## Status
+   - Type: implementation
+   - Created: {timestamp}
+   - Status: proposed
+
+   ## Current Test Status
+
+   **Run to verify current state:**
+   ```bash
+   npm run build
+   npm test
+   ```
+
+   **Current state:**
+   - Build: {passing|failing}
+   - Tests: {X passing, Y failing}
+   - Relevant failing tests:
+     - `{test}`: {what it reveals about the problem}
 
    ## Context
    {What exists now, relevant files, current patterns}
 
-   ## Objective
-   {What needs to be accomplished}
+   ## Problem Statement
+   {What specific problem this loop solves}
 
-   ## Implementation Plan
+   ## Objective
+   {What needs to be accomplished - measurable outcome}
+
+   ## Implementation Spec
+
+   ### Files to Modify
+   | File | Current State | Changes Required |
+   |------|---------------|------------------|
+   | {path} | {current behavior} | {what to change} |
+
+   ### Files to Create
+   | File | Purpose | Key Exports |
+   |------|---------|-------------|
+   | {path} | {why needed} | {public API} |
+
+   ### Implementation Steps
    1. {Step 1 - specific file and change}
    2. {Step 2 - specific file and change}
    ...
 
-   ## Files to Modify
-   - {file1.ts} - {what changes}
-   - {file2.ts} - {what changes}
-
-   ## Files to Create
-   - {new-file.ts} - {purpose}
-
-   ## Testing Strategy
-   - {How to verify this works}
-
    ## Acceptance Criteria
-   - [ ] {Criterion 1}
-   - [ ] {Criterion 2}
+
+   **All criteria must be testable:**
+
+   - [ ] **{Criterion 1}**
+     - Verify: `{command or file check}`
+     - Expected: {what success looks like}
+
+   - [ ] **{Criterion 2}**
+     - Verify: `{command or file check}`
+     - Expected: {what success looks like}
+
+   ## Test Plan
+
+   ### Tests to Run
+   ```bash
+   npm test -- --grep "{relevant tests}"
+   ```
+
+   ### Expected Post-Implementation
+   - Build: passing
+   - Tests: all passing
+   - New functionality: {verified how}
    ```
 
 4. **Show the plan to user:**
@@ -227,9 +274,9 @@ When a natural language prompt is provided (e.g., `/ds:loop "add user authentica
    Commit: {hash} - {message}
    ```
 
-### Key Differences from Dream Mode
+### Key Differences from Audit Mode
 
-| Aspect | Dream Mode | Loop Prompt Mode |
+| Aspect | Audit Mode | Loop Prompt Mode |
 |--------|------------|------------------|
 | Modifies code | NO (read-only) | YES |
 | Creates files | Only tests | Any files |

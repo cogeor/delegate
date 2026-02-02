@@ -1,6 +1,6 @@
 ---
 name: ds:init
-description: Initialize dreamstate in current project by updating CLAUDE.md
+description: Initialize dreamstate in current project by updating CLAUDE.md (user)
 allowed-tools:
   - Read
   - Write
@@ -32,12 +32,10 @@ This project uses the Dreamstate plugin for spec-driven development.
 **Commands:**
 | Command | Purpose |
 |---------|---------|
-| `/ds:ping` | Test daemon connectivity |
-| `/ds:status` | Show daemon and dream status |
-| `/ds:dream [model]` | Enter dream mode (haiku/sonnet/opus) |
-| `/ds:wake` | Stop dream mode |
-| `/ds:loop [path]` | Start plan/implement/test loop |
-| `/ds:verify-loop [id]` | Complete loop reflection |
+| `/ds:status` | Show daemon and audit status (includes ping) |
+| `/ds:audit [model] [theme]` | Enter audit mode (haiku/sonnet/opus) |
+| `/ds:loop [args]` | Start plan/implement/test loop |
+| `/ds:init` | Initialize dreamstate in project |
 
 **Agents:**
 | Name | Role |
@@ -46,8 +44,8 @@ This project uses the Dreamstate plugin for spec-driven development.
 | `ds-planner` | Creates implementation plans |
 | `ds-executor` | Implements tasks |
 | `ds-tester` | Verifies implementation |
-| `ds-dream-planner` | Explores and plans during dream mode |
-| `ds-doc-generator` | Generates documentation during dream mode |
+| `ds-audit-planner` | Explores and plans during audit mode |
+| `ds-doc-generator` | Generates documentation during audit mode |
 
 **Configuration** (`.dreamstate/config.json`):
 ```json
@@ -55,9 +53,9 @@ This project uses the Dreamstate plugin for spec-driven development.
   "daemon": {
     "provider": "claude",
     "model": "haiku",
-    "dream_timeout_minutes": 5,
+    "audit_timeout_minutes": 5,
     "token_budget_per_hour": 10000,
-    "auto_dream": {
+    "auto_audit": {
       "enabled": false,
       "model": "haiku",
       "max_iterations": 10
@@ -99,7 +97,7 @@ On success (appended):
 ✓ Dreamstate initialized!
   Updated: CLAUDE.md
 
-  Run /ds:ping to test the daemon connection.
+  Run /ds:status to test the daemon connection.
 ```
 
 On success (created):
@@ -107,7 +105,7 @@ On success (created):
 ✓ Dreamstate initialized!
   Created: CLAUDE.md
 
-  Run /ds:ping to test the daemon connection.
+  Run /ds:status to test the daemon connection.
 ```
 
 Already initialized:

@@ -1,184 +1,185 @@
 # Dreamstate
 
-A Claude Code plugin with a background daemon for spec-driven development.
+## Mission
 
-**Core philosophy:** Humans write plan drafts, agents write self-cleaning code.
+Dreamstate is autonomous coding infrastructure for Claude Code. It enables continuous exploration and implementation through two complementary modes:
 
-## Quick Start
+**Audit Mode** - Claude explores your codebase, analyzes patterns, runs tests, and proposes improvements. Audits are read-only: they can create tests to validate assumptions but cannot modify source code.
 
-### 1. Install Dependencies
+**Loop Mode** - Claude implements changes from a prompt or plan. Loops are full-cycle: plan → implement → test → commit.
+
+The core insight: **separate exploration from execution**. Audits propose, loops execute.
+
+## Usage
+
+> **Note:** Dreamstate is in active development. The daemon auto-starts with Claude Code sessions but some features are experimental.
 
 ```bash
-cd dreamstate
+# Install
 npm install
-```
-
-### 2. Install Plugin to Claude Code
-
-```bash
 npm run install:claude
+
+# Commands
+/ds:audit              # Enter audit mode (continuous exploration)
+/ds:audit "theme"      # Audit with focus (e.g., "error handling")
+/ds:loop "prompt"      # Plan and implement from prompt
+/ds:loop plan          # Show all unimplemented loops
+/ds:status             # Check daemon and audit status (includes ping)
+/ds:init               # Initialize project with dreamstate
 ```
-
-This copies the slash commands to `~/.claude/commands/ds/`.
-
-### 3. Start the Daemon
-
-In a terminal (keep this running):
-
-```bash
-npm run daemon
-```
-
-You should see:
-
-```
-╔══════════════════════════════════════════╗
-║         DREAMSTATE DAEMON                ║
-╚══════════════════════════════════════════╝
-
-[Daemon] Started (PID: 12345)
-[Daemon] Workspace: /path/to/dreamstate
-[Daemon] Ready. Waiting for tasks...
-```
-
-### 4. Test the Connection
-
-In another terminal, start Claude Code in the same directory:
-
-```bash
-claude
-```
-
-Then run:
-
-```
-/ds:ping
-```
-
-Expected output:
-
-```
-✓ Daemon responded!
-  Uptime: 1234ms
-  Message: Daemon is alive!
-```
-
-## Commands
-
-| Command | Description |
-|---------|-------------|
-| `/ds:ping` | Test daemon connectivity |
-| `/ds:status` | Show daemon status |
-| `/ds:loop` | Start plan/implement/test loop |
-| `/ds:reflect` | Trigger reflection mode |
-
-## Agents
-
-| Agent | Role |
-|-------|------|
-| `ds-coordinator` | Orchestrates the three-phase loop |
-| `ds-planner` | Creates detailed implementation plans from drafts |
-| `ds-executor` | Implements tasks from the plan |
-| `ds-tester` | Verifies implementation against plan |
-| `ds-reflector` | Updates docs and proposes next steps |
 
 ## Workflow
 
-### Running a Loop
+### Audit → Implement Cycle
 
-1. Create a plan draft:
-```bash
-echo "Add user authentication with JWT tokens" > plan_draft.md
-```
-
-2. Run the loop:
-```
-/ds:loop
-```
-
-3. The coordinator will:
-   - Create timestamped folder: `.dreamstate/loops/20260201-143022-add-user-auth/`
-   - Run planning phase → `PLAN.md`
-   - Run implementation → code changes + `IMPLEMENTATION.md`
-   - Run testing → `TEST.md`
-   - Commit on success
-
-### Triggering Reflection
+Each feature follows this pattern:
 
 ```
-/ds:reflect
+1. AUDIT: Explore and analyze
+   /ds:audit "user authentication"
+
+   → Creates loop plan with proposals:
+     .dreamstate/loop_plans/20260202-user-auth/
+     ├── OVERVIEW.md        # Vision, baseline tests, all loops
+     ├── 01-auth-patterns.md    # Analysis of existing patterns
+     ├── 02-jwt-integration.md  # JWT implementation proposal
+     ├── 03-session-management.md
+     └── ITERATIONS.md      # Audit iteration log
+
+2. REVIEW: Check what was proposed
+   /ds:loop plan
+
+   → Shows unimplemented loops:
+     Loop 01: auth-patterns [proposed] - Analyze existing auth
+     Loop 02: jwt-integration [proposed] - Add JWT support
+     Loop 03: session-management [proposed] - Session handling
+
+3. IMPLEMENT: Execute a loop
+   /ds:loop 02
+
+   → Executes the loop:
+     - Planning phase → PLAN.md
+     - Implementation → modifies source code
+     - Testing → TEST.md
+     - Commit on success
+
+4. REPEAT: Audit again for next feature
+   (interrupt current audit with Ctrl+C)
+   /ds:audit "session security"
 ```
 
-This runs the reflector agent which:
-- Analyzes recently changed files
-- Updates documentation in `.dreamstate/docs/`
-- Reviews recent loop artifacts
-- Updates `.dreamstate/STATE.md`
-- Proposes next steps in `.dreamstate/NEXT.md`
+### Loop Plan Structure
 
-## How It Works
+Each loop proposal contains:
 
-```
-┌─────────────────────┐     ┌─────────────────────┐
-│   Claude Code       │     │  dreamstate-daemon  │
-│   (user session)    │     │  (background)       │
-└─────────┬───────────┘     └──────────┬──────────┘
-          │                            │
-          │  /ds:ping writes task      │
-          ├───────────────────────────▶│
-          │  .dreamstate/tasks/        │
-          │                            │
-          │  daemon writes result      │
-          │◀───────────────────────────┤
-          │  .dreamstate/results/      │
-          │                            │
-```
+```markdown
+# Loop 02: JWT Integration
 
-The daemon and Claude Code plugin communicate via JSON files in `.dreamstate/`:
+## Current Test Status
+- Build: passing
+- Tests: 12 passing, 2 failing
+- Failing: `auth.test.ts` - no JWT validation
 
-- `daemon.pid` - Daemon process ID
-- `daemon.status` - JSON with daemon state
-- `tasks/` - Tasks written by plugin, consumed by daemon
-- `results/` - Results written by daemon, read by plugin
+## Problem Statement
+Authentication uses session cookies, need stateless JWT.
 
-## Configuration
+## Implementation Spec
+| File | Changes |
+|------|---------|
+| src/auth/jwt.ts | Create JWT utilities |
+| src/middleware/auth.ts | Add JWT validation |
 
-Create `.dreamstate/config.json` to customize:
-
-```json
-{
-  "daemon": {
-    "idle_timeout_minutes": 5,
-    "token_budget_per_hour": 10000,
-    "model": "haiku"
-  },
-  "watch": {
-    "patterns": ["**/*.ts", "**/*.tsx"],
-    "ignore": ["node_modules", "dist"]
-  }
-}
+## Acceptance Criteria
+- [ ] JWT tokens generated on login
+  - Verify: `npm test -- --grep "jwt"`
+  - Expected: All JWT tests pass
 ```
 
-## Development
+### Audit vs Loop
 
-```bash
-# Build TypeScript
-npm run build
+| Aspect | Audit Mode | Loop Mode |
+|--------|------------|-----------|
+| Purpose | Explore, analyze, propose | Plan, implement, commit |
+| Modifies code | NO (read-only) | YES |
+| Creates tests | YES (to validate assumptions) | YES |
+| Runs tests | YES (to understand state) | YES (to verify implementation) |
+| Output | Loop proposals with test baselines | Working code + commit |
 
-# Run daemon in development
-npm run daemon
+## Architecture
 
-# Install plugin
-npm run install:claude
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      Claude Code Session                     │
+├─────────────────────────────────────────────────────────────┤
+│  /ds:audit          /ds:loop           /ds:status           │
+│      │                  │                   │               │
+│      ▼                  ▼                   ▼               │
+│  ┌─────────┐      ┌──────────┐      ┌───────────┐          │
+│  │ audit   │      │ loop     │      │ status    │          │
+│  │ planner │      │ executor │      │ reporter  │          │
+│  └────┬────┘      └────┬─────┘      └─────┬─────┘          │
+│       │                │                  │                 │
+│       ▼                ▼                  ▼                 │
+│  ┌──────────────────────────────────────────────┐          │
+│  │           .dreamstate/ (IPC layer)           │          │
+│  │  ├── daemon.status    # Daemon state         │          │
+│  │  ├── audit.state      # Audit mode state     │          │
+│  │  ├── tasks/           # Task queue           │          │
+│  │  ├── results/         # Task results         │          │
+│  │  ├── loop_plans/      # Audit proposals      │          │
+│  │  └── loops/           # Executed loops       │          │
+│  └──────────────────────────────────────────────┘          │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Dreamstate Daemon                         │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
+│  │ File        │  │ Task        │  │ LLM         │         │
+│  │ Watcher     │  │ Processor   │  │ Provider    │         │
+│  └─────────────┘  └─────────────┘  └─────────────┘         │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-## Roadmap
+### Components
 
-- [x] Phase 1: Daemon + ping test
-- [x] Phase 2: Three-phase loop (plan/implement/test)
-- [x] Phase 3: Reflection mode (manual trigger)
-- [ ] Phase 4: File-save LLM triggers (@dreamstate markers)
-- [ ] Phase 5: Automatic idle detection
+**Plugin** (`src/plugin/`)
+- Commands: `/ds:audit`, `/ds:loop`, `/ds:status`, etc.
+- Agents: ds-audit-planner, ds-coordinator, ds-planner, ds-executor, ds-tester
+
+**Daemon** (`src/daemon/`)
+- File watcher: Monitors `.dreamstate/` for tasks
+- IPC: JSON file-based communication
+- Provider: Abstract LLM interface (Claude, future: others)
+
+**Shared** (`src/shared/`)
+- Types: Task, DaemonStatus, Config
+- Config: Default settings, validation
+
+### File Structure
+
+```
+dreamstate/
+├── src/
+│   ├── daemon/          # Background daemon
+│   │   ├── index.ts     # Entry point
+│   │   ├── ipc.ts       # File-based IPC
+│   │   └── providers/   # LLM providers
+│   ├── plugin/          # Claude Code plugin
+│   │   ├── commands/ds/ # Slash commands
+│   │   ├── agents/      # Agent definitions
+│   │   └── references/  # Shared docs
+│   └── shared/          # Shared code
+│       ├── types.ts     # Type definitions
+│       └── config.ts    # Configuration
+├── bin/                 # CLI scripts
+│   ├── install.ts       # Plugin installer
+│   └── validate-docs.ts # Pre-commit validator
+└── .dreamstate/         # Runtime state (gitignored)
+    ├── loop_plans/      # Audit proposals
+    ├── loops/           # Executed loops
+    └── config.json      # Local config
+```
 
 ## License
 

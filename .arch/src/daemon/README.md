@@ -9,7 +9,7 @@ Background daemon that watches files, detects idle state, manages token budgets,
 - `Daemon` - Main daemon class with start/stop lifecycle
 - `IPC` - File-based inter-process communication
 - `FileWatcher` - Watches files for changes and @dreamstate directives
-- `DreamDetector` - Tracks activity and triggers dream callbacks
+- `AuditDetector` - Tracks activity and triggers audit callbacks
 - `TokenBudgetTracker` - Manages hourly token spending limits
 - `runClaude` - Spawns claude CLI with prompts
 - `runClaudeAgent` - Runs claude with a specific agent name
@@ -25,12 +25,12 @@ Background daemon that watches files, detects idle state, manages token budgets,
           +-------------------+-------------------+
           |           |           |               |
     +-----+----+ +-----+-----+ +----+-----+ +------+------+
-    |FileWatcher| |DreamDetector| |TokenBudget| |    IPC     |
+    |FileWatcher| |AuditDetector| |TokenBudget| |    IPC     |
     |(chokidar) | |(activity)   | |(limits)   | |(file-based)|
     +-----+-----+ +------+------+ +-----+-----+ +------+-----+
           |              |              |              |
           v              v              v              v
-    [file changes] [dream events] [budget checks] [.dreamstate/]
+    [file changes] [audit events] [budget checks] [.dreamstate/]
           |             |              |              |
           +-------------+------+-------+--------------+
                                |
@@ -47,7 +47,7 @@ Background daemon that watches files, detects idle state, manages token budgets,
 | index.ts | Daemon entry point, orchestrates all components |
 | ipc.ts | File-based IPC: status, tasks, results |
 | file-watcher.ts | Watches files, scans for @dreamstate directives |
-| dream-detector.ts | Tracks activity, triggers dream callbacks |
+| audit-detector.ts | Tracks activity, triggers audit callbacks |
 | token-budget.ts | Hourly token budget tracking and enforcement |
 | claude-cli.ts | Spawns claude CLI processes |
 
@@ -73,9 +73,9 @@ Daemon.start()
   |     +-> chokidar.watch()
   |     +-> scanForDirectives() -> onFileDirective callback
   |     +-> onFileChange callback
-  +-> DreamDetector.start()
+  +-> AuditDetector.start()
   |     +-> setInterval(checkIdle)
-  |     +-> onDreamStart/onDreamEnd callbacks
+  |     +-> onAuditStart/onAuditEnd callbacks
   +-> updateStatus()
   |     +-> TokenBudgetTracker.getStatus()
   |     +-> IPC.writeStatus()
@@ -88,12 +88,12 @@ Daemon.start()
 
 Daemon.processFileDirective()
   +-> TokenBudgetTracker.canSpend()
-  +-> DreamDetector.recordActivity()
+  +-> AuditDetector.recordActivity()
   +-> runClaude()
   +-> TokenBudgetTracker.recordUsage()
 
 Daemon.stop()
   +-> FileWatcher.stop()
-  +-> DreamDetector.stop()
+  +-> AuditDetector.stop()
   +-> IPC.clearPid()
 ```
