@@ -67,7 +67,7 @@ If first arg is not a model name, treat entire input as the theme (default model
    ================
    Model: {model}
    Theme: {theme or "General exploration"}
-   Types: [T]emplate -> [I]ntrospect -> [R]esearch -> [V]erify
+   Types: [T]emplate -> [I]ntrospect -> [R]esearch -> [F]lect -> [V]erify
    Check progress: /dg:status
    ```
 
@@ -75,11 +75,12 @@ If first arg is not a model name, treat entire input as the theme (default model
 
 Repeat until interrupted or max_iterations reached:
 
-1. Determine type from iteration number (4-phase cycle):
-   - 1, 5, 9...  → [T] Template
-   - 2, 6, 10... → [I] Introspect
-   - 3, 7, 11... → [R] Research
-   - 4, 8, 12... → [V] Verify
+1. Determine type from iteration number (5-phase cycle):
+   - 1, 6, 11... → [T] Template
+   - 2, 7, 12... → [I] Introspect
+   - 3, 8, 13... → [R] Research
+   - 4, 9, 14... → [F] Reflect
+   - 5, 10, 15... → [V] Verify
 
 2. Load previous session summaries from plan.state
 

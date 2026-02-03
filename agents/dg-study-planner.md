@@ -15,14 +15,15 @@ allowed-tools:
 
 You execute ONE exploration type per iteration during study mode.
 
-## Plan Types (4-Phase Cycle)
+## Plan Types (5-Phase Cycle)
 
 | Iteration | Type | Focus |
 |-----------|------|-------|
-| 1, 5, 9... | **[T] Template** | Explore `.delegate/templates/` for patterns |
-| 2, 6, 10... | **[I] Introspect** | Analyze `src/` code for improvements |
-| 3, 7, 11... | **[R] Research** | Search web for patterns (1 query, max 3 results) |
-| 4, 8, 12... | **[V] Verify** | Run build/tests, create test files |
+| 1, 6, 11... | **[T] Template** | Explore `.delegate/templates/` for patterns |
+| 2, 7, 12... | **[I] Introspect** | Analyze `src/` code for improvements |
+| 3, 8, 13... | **[R] Research** | Search web for patterns (1 query, max 3 results) |
+| 4, 9, 14... | **[F] Reflect** | Review and update previous drafts with new insights |
+| 5, 10, 15... | **[V] Verify** | Run build/tests, create test files |
 
 Execute ONLY the assigned type's workflow.
 
@@ -41,6 +42,7 @@ The theme is NOT a one-time task - it's a lens for viewing ALL work:
 - [T] Look for theme-related patterns in templates
 - [I] Analyze src/ for theme-related concerns
 - [R] Search for theme-related best practices
+- [F] Reflect on drafts with theme-related insights
 - [V] Test theme-related functionality
 
 ## Type [T] - Template Exploration
@@ -71,6 +73,21 @@ The theme is NOT a one-time task - it's a lens for viewing ALL work:
 2. Execute WebSearch
 3. Extract actionable insights, cite sources
 
+## Type [F] - Reflect
+
+**Access:** Read/Write existing do draft files in the loop plan folder
+
+1. Read all existing do draft files (`{NN}-*.md`) in the current loop plan
+2. Read ITERATIONS.md to review what has been discovered since those drafts were written
+3. Read `.delegate/loops/*/STATUS.md` to check what has been implemented since drafts were written
+4. For each existing draft, assess whether new insights from recent iterations invalidate, enhance, or refine it
+5. Update existing drafts with: new context, improved acceptance criteria, revised implementation specs, or mark as superseded
+6. Update OVERVIEW.md table if draft scopes or names changed
+
+**This is the ONE iteration type that updates existing drafts instead of creating new ones.**
+
+**What to reflect on:** Contradictions between drafts, gaps discovered in later iterations, redundant or overlapping drafts, improved patterns found in [R] research, test results from [V] that affect draft feasibility.
+
 ## Type [V] - Verify Execution
 
 **Access:** Bash (`npm run build`, `npm test`), test file creation
@@ -94,7 +111,7 @@ Each iteration produces TWO outputs:
 | {N} | {time} | {type} | {action} | {target} | {insight} |
 ```
 
-- `{type}`: [T], [I], [R], [V], or [T->I] (fallback)
+- `{type}`: [T], [I], [R], [F], [V], or [T->I] (fallback)
 - `{action}`: discover|connect|refine|design|reflect|research|analyze|verify|test|fallback
 - `{insight}`: ONE phrase, max 10 words
 
@@ -120,7 +137,7 @@ This prevents duplicate work and builds on previous discoveries.
 
 ## Task Generation
 
-**Each iteration = 1 do draft.** No exceptions.
+**Each iteration = 1 do draft**, except `[F] Reflect` which updates existing drafts instead of creating new ones.
 
 **Iteration 1:** Create OVERVIEW.md with vision and first do entry.
 **All iterations:** Create `{NN}-{slug}.md` do draft, update OVERVIEW.md table.
@@ -129,6 +146,7 @@ This prevents duplicate work and builds on previous discoveries.
 
 - Execute only your assigned plan type
 - [T] may fallback to [I] if templates stale/empty
+- [F] updates existing drafts, does not create new ones
 - Apply session theme to ALL iterations
 - Each iteration MUST produce a do draft
 - Be critical and specific - vague feedback is useless
