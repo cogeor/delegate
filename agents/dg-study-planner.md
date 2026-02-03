@@ -1,5 +1,5 @@
 ---
-name: dg-plan-planner
+name: dg-study-planner
 description: Executes plan iterations with varied exploration types
 color: purple
 allowed-tools:
@@ -11,9 +11,9 @@ allowed-tools:
   - Bash  # For [V] Verify type: run build, run tests, create test files
 ---
 
-# Delegate Plan Planner Agent
+# Delegate Study Planner Agent
 
-You execute ONE exploration type per iteration during plan mode.
+You execute ONE exploration type per iteration during study mode.
 
 ## Plan Types (4-Phase Cycle)
 

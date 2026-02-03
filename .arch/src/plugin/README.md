@@ -8,7 +8,7 @@ Claude Code plugin providing slash commands and specialized agents for the deleg
 
 **Commands (dg namespace):**
 - `/dg:status` - Show daemon and plan mode status
-- `/dg:plan [model] [theme]` - Enter continuous plan mode
+- `/dg:study [model] [theme]` - Enter continuous study mode
 - `/dg:do [args]` - Execute plan/implement/test loops
 - `/dg:init` - Initialize delegate in a project
 
@@ -16,7 +16,7 @@ Claude Code plugin providing slash commands and specialized agents for the deleg
 - `dg-planner` - Creates implementation plans from drafts
 - `dg-executor` - Implements tasks from plans
 - `dg-tester` - Verifies implementation against plan
-- `dg-plan-planner` - Explores and plans during plan mode
+- `dg-study-planner` - Explores and plans during plan mode
 - `dg-doc-generator` - Generates documentation during plan mode
 
 ## Architecture
@@ -53,13 +53,13 @@ Claude Code plugin providing slash commands and specialized agents for the deleg
 | File | Purpose |
 |------|---------|
 | commands/dg/status.md | Displays daemon and plan status |
-| commands/dg/plan.md | Starts continuous plan mode |
+| commands/dg/study.md | Starts continuous study mode |
 | commands/dg/do.md | Executes loops with dependency resolution |
 | commands/dg/init.md | Initializes delegate in a project |
 | agents/dg-planner.md | Transforms drafts into detailed plans |
 | agents/dg-executor.md | Implements tasks from plans |
 | agents/dg-tester.md | Verifies implementation, gates commits |
-| agents/dg-plan-planner.md | Explores codebase during plan mode |
+| agents/dg-study-planner.md | Explores codebase during study mode |
 | agents/dg-doc-generator.md | Generates documentation |
 
 ## Dependencies

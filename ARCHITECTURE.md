@@ -94,7 +94,7 @@ bin/
 | `dg-planner` | Creates implementation plans from drafts |
 | `dg-executor` | Implements specific tasks from plans |
 | `dg-tester` | Verifies implementation, runs tests |
-| `dg-plan-planner` | Explores and plans during plan mode |
+| `dg-study-planner` | Explores and plans during plan mode |
 | `dg-doc-generator` | Generates documentation during plan mode |
 
 **Note:** Loop coordination (spawning planner -> executor -> tester) is done by `/dg:do` command directly.

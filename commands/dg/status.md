@@ -54,7 +54,7 @@ Plan Mode:  {Active|Inactive}
 Loops:      {completed} complete, {in_progress} in progress
 
 Commands:
-  /dg:plan [model] [theme]  - Enter plan mode
+  /dg:study [model] [theme]  - Enter study mode
   /dg:do                    - Run a do loop
   /dg:init                  - Initialize project
 ```

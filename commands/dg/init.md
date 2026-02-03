@@ -75,7 +75,7 @@ This project uses the Delegate plugin for spec-driven development.
 | Command | Purpose |
 |---------|---------|
 | `/dg:status` | Show daemon and plan status |
-| `/dg:plan [model] [theme]` | Enter plan mode |
+| `/dg:study [model] [theme]` | Enter study mode |
 | `/dg:do [args]` | Start plan/implement/test loop |
 | `/dg:init` | Initialize delegate in project |
 

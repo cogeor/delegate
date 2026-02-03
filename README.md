@@ -4,7 +4,7 @@ Autonomous coding infrastructure for Claude Code. Humans write plan drafts, agen
 
 ## How It Works
 
-**Plan Mode** (`/dg:plan`) - Claude continuously explores your codebase, analyzes patterns, runs tests, and proposes improvements. Plans are read-only: they can create tests but cannot modify source code.
+**Study Mode** (`/dg:study`) - Claude continuously explores your codebase, analyzes patterns, runs tests, and proposes improvements. Plans are read-only: they can create tests but cannot modify source code.
 
 **Do Mode** (`/dg:do`) - Claude implements changes from a prompt or plan. Full-cycle: plan, implement, test, commit.
 
@@ -37,8 +37,8 @@ npx delegate-claude uninstall
 ## Commands
 
 ```bash
-/dg:plan                   # Enter plan mode (continuous exploration)
-/dg:plan sonnet "testing"  # Plan with model and focus theme
+/dg:study                   # Enter study mode (continuous exploration)
+/dg:study sonnet testing     # Study with model and focus theme
 /dg:do "add dark mode"     # Plan then implement from prompt
 /dg:do plan                # Show all unimplemented loops
 /dg:do 02                  # Execute specific loop from plan
@@ -50,7 +50,7 @@ npx delegate-claude uninstall
 
 ```
 1. PLAN: Explore and analyze
-   /dg:plan "user authentication"
+   /dg:study user authentication
    -> Creates loop plan with proposals in .delegate/loop_plans/
 
 2. REVIEW: Check what was proposed
@@ -69,7 +69,7 @@ npx delegate-claude uninstall
 ```
 Claude Code Session
 +------------------------------------------+
-|  /dg:plan     /dg:do      /dg:status     |
+|  /dg:study    /dg:do      /dg:status     |
 |      |            |            |          |
 |      v            v            v          |
 |  plan         do           status         |
@@ -90,7 +90,7 @@ Delegate Daemon (background)
 
 ### Components
 
-**Plugin** - Commands (`/dg:*`), agents (dg-planner, dg-executor, dg-tester, dg-plan-planner), hooks (session lifecycle)
+**Plugin** - Commands (`/dg:*`), agents (dg-planner, dg-executor, dg-tester, dg-study-planner), hooks (session lifecycle)
 
 **Daemon** - File watcher, task processor, idle detection, token budget, LLM provider interface
 

@@ -87,7 +87,7 @@ export class PlanDetector {
   }
 
   /**
-   * Check if plan mode is manually active (via /dg:plan)
+   * Check if plan mode is manually active (via /dg:study)
    */
   isManualPlanActive(): boolean {
     const state = this.getPlanState();

@@ -1,6 +1,6 @@
 ---
-name: dg:plan
-description: Enter plan mode - continuously explore and analyze the codebase
+name: dg:study
+description: Enter study mode - continuously explore and analyze the codebase
 allowed-tools:
   - Read
   - Write
@@ -11,28 +11,28 @@ allowed-tools:
   - WebSearch
 ---
 
-# /dg:plan - Continuous Plan Mode
+# /dg:study - Continuous Study Mode
 
-You are the ORCHESTRATOR for plan mode. You spawn dg-plan-planner agents in a loop.
-Plan mode is read-only exploration — no source code modifications, no commits.
+You are the ORCHESTRATOR for study mode. You spawn dg-study-planner agents in a loop.
+Study mode is read-only exploration — no source code modifications, no commits.
 
 ## Non-Negotiable Rules
 
-1. **Spawn dg-plan-planner for each iteration** — do not explore the codebase yourself.
-2. **Never modify source code** — plan mode is read-only (tests are the exception during [V] iterations).
-3. **Never commit** — plan mode produces drafts, not implementations.
+1. **Spawn dg-study-planner for each iteration** — do not explore the codebase yourself.
+2. **Never modify source code** — study mode is read-only (tests are the exception during [V] iterations).
+3. **Never commit** — study mode produces drafts, not implementations.
 4. **Keep iterating** until interrupted or max_iterations reached.
 
 ## Step 1: Parse Arguments
 
 ```
-/dg:plan                        → model=haiku, theme=null
-/dg:plan haiku|sonnet|opus      → model={arg}, theme=null
-/dg:plan sonnet "test coverage" → model=sonnet, theme="test coverage"
-/dg:plan "error handling"       → model=haiku, theme="error handling"
+/dg:study                        → model=haiku, theme=null
+/dg:study haiku|sonnet|opus      → model={arg}, theme=null
+/dg:study sonnet test coverage   → model=sonnet, theme="test coverage"
+/dg:study error handling          → model=haiku, theme="error handling"
 ```
 
-If first arg is not a model name, treat it as the theme (default model: haiku).
+If first arg is not a model name, treat entire input as the theme (default model: haiku). No quotes needed.
 
 ## Step 2: Initialize
 
@@ -61,9 +61,9 @@ If first arg is not a model name, treat it as the theme (default model: haiku).
    **Theme:** {theme}
    ```
 
-5. Report plan mode started:
+5. Report study mode started:
    ```
-   Plan Mode Active
+   Study Mode Active
    ================
    Model: {model}
    Theme: {theme or "General exploration"}
@@ -83,9 +83,9 @@ Repeat until interrupted or max_iterations reached:
 
 2. Load previous session summaries from plan.state
 
-3. Spawn **dg-plan-planner** with model={model}:
+3. Spawn **dg-study-planner** with model={model}:
    ```
-   Plan Mode Iteration {N} of {max}
+   Study Mode Iteration {N} of {max}
    Theme: {theme or "General exploration"}
    Type: {type}
    Do Plan: {path}
@@ -104,7 +104,7 @@ Repeat until interrupted or max_iterations reached:
 
 ## Step 4: On Stop
 
-When plan mode ends (interrupt or max_iterations):
+When study mode ends (interrupt or max_iterations):
 
 1. Read ITERATIONS.md, extract key findings
 2. Create session summary, append to plan.state.session_summaries

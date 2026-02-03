@@ -42,7 +42,7 @@ function main(): void {
 
       console.log(`<daemon-request>`);
       console.log(`The daemon has detected you are idle and auto-plan is enabled.`);
-      console.log(`Please run: /dg:plan ${model}${prompt}`);
+      console.log(`Please run: /dg:study ${model}${prompt}`);
       console.log(`Limit to ${maxIter} iterations, then stop.`);
       console.log(`</daemon-request>`);
     } else if (request.action === 'stop-plan') {

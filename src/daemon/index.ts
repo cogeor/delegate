@@ -106,7 +106,7 @@ Please complete this task. Be concise and focused on the specific instruction.`;
     // Check if auto-plan is enabled
     const autoPlan = this.config.daemon.auto_plan;
     if (!autoPlan.enabled) {
-      console.log('[Daemon] Idle detected (auto-plan disabled, use /dg:plan manually)');
+      console.log('[Daemon] Idle detected (auto-plan disabled, use /dg:study manually)');
       return;
     }
 
