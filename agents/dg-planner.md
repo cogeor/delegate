@@ -90,7 +90,7 @@ Before writing the plan:
 - Test results
 
 **MAY ONLY access:**
-- DRAFT.md provided by Coordinator
+- DRAFT.md provided by orchestrator
 - STATE.md (current state section only)
 - Source files relevant to the draft (via Glob/Grep)
 - README and documentation
