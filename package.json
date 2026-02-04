@@ -11,7 +11,8 @@
     "prepublishOnly": "npm run build"
   },
   "bin": {
-    "delegate-agent": "./bin/delegate-agent.js"
+    "delegate-claude": "./bin/delegate-claude.js",
+    "delegate-codex": "./bin/delegate-codex.js"
   },
   "engines": {
     "node": ">=18.0.0"
