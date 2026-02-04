@@ -34,8 +34,10 @@ You are the ORCHESTRATOR. You coordinate agents and handle commits yourself.
 ### Detection
 
 - First word is `plan` → **plan mode** (rest is the prompt)
-- Path to `.md` file, path to folder, or loop ID (`03`, `03..05`, `--all`) → **ref mode**
+- Path to folder, path to `.md` file, or loop ID (`03`, `03..05`, `--all`) → **ref mode**
 - Anything else → **prompt mode**
+
+Ref mode handles both `LOOPS.yaml` folders and study session folders (containing `{NN}-*.md` drafts).
 
 ---
 
@@ -68,12 +70,23 @@ You are the ORCHESTRATOR. You coordinate agents and handle commits yourself.
 `/dg:work .delegate/loop_plans/20260204-plan-session/`
 `/dg:work 03` or `/dg:work 03..05` or `/dg:work --all`
 
-1. Find the LOOPS.yaml (from path, or most recent plan: `ls -td .delegate/loop_plans/*/ | head -1`)
-2. Parse requested IDs (specific, range, or `--all` pending)
-3. Resolve dependencies — execute deps first
-4. Execute matching entries → **Execute Loop** for each, in dependency order
+1. Find the target folder (from path, or most recent plan: `ls -td .delegate/loop_plans/*/ | head -1`)
+2. Check if the folder contains `LOOPS.yaml`:
+   - **Yes** → parse requested IDs (specific, range, or `--all` pending), resolve dependencies, execute
+   - **No, but has `{NN}-*.md` drafts** → **study session conversion** (see below)
+3. Execute matching entries → **Execute Loop** for each, in dependency order
 
-The LOOPS.yaml may come from `/dg:study` sessions or from a prior `/dg:work plan` run.
+#### Study session conversion
+
+When the target folder has draft files (`{NN}-*.md`) but no `LOOPS.yaml`, it's a study session output:
+
+1. List all `{NN}-*.md` files in the folder, sorted by number
+2. For each draft file:
+   a. Read the draft content
+   b. Feed it as a prompt to **dg-planner** (decomposition context) → produces `LOOPS.yaml`
+   c. Each draft may produce one or more LOOPS.yaml entries
+3. Merge all entries into a single `LOOPS.yaml` in the folder (re-number IDs sequentially, preserve dependencies)
+4. Execute all entries → **Execute Loop** for each, in dependency order
 
 ---
 
