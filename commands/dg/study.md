@@ -37,7 +37,7 @@ If first arg is not a model name, treat entire input as the theme (default model
 ## Step 2: Initialize
 
 1. Check `.delegate/plan.state` — if already active, report and stop
-2. Create do plan folder: `.delegate/loop_plans/{YYYYMMDD-HHMMSS}-plan-session/`
+2. Create session folder: `.delegate/loop_plans/{YYYYMMDD-HHMMSS}-plan-session/`
 3. Write `.delegate/plan.state`:
    ```json
    {
@@ -54,7 +54,7 @@ If first arg is not a model name, treat entire input as the theme (default model
    ```
    Preserve existing `session_summaries` from previous plan.state if present.
 
-4. If theme provided, write `{loop_plan}/THEME.md`:
+4. If theme provided, write `{session_folder}/THEME.md`:
    ```markdown
    # Plan Session Theme
    > This theme guides ALL iterations, not just one.
@@ -89,13 +89,13 @@ Repeat until interrupted or max_iterations reached:
    Study Mode Iteration {N} of {max}
    Theme: {theme or "General exploration"}
    Type: {type}
-   Do Plan: {path}
+   Session: {path}
 
    Previous Sessions:
    - {sessionId} ({N} iter): {summary}
    ```
 
-4. Agent produces: one ITERATIONS.md row + one do draft file
+4. Agent produces: one ITERATIONS.md row + one draft file (feature proposal, implementation plan, test approach)
 
 5. Increment iterations, update plan.state
 

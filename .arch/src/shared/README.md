@@ -2,7 +2,7 @@
 
 ## Overview
 
-Shared utilities, types, and configuration management used by both the daemon and plugin components.
+Shared utilities, types, and configuration management used by the plugin components.
 
 ## Public API
 
@@ -30,22 +30,21 @@ Shared utilities, types, and configuration management used by both the daemon an
 ## Architecture
 
 ```
-+-------------------+     +-------------------+
-|      daemon/      |     |      hooks/       |
-+--------+----------+     +---------+---------+
-         |                          |
-         +------------+-------------+
-                      |
-              +-------v-------+
-              |    shared/    |
-              +---------------+
-              |  config.ts    | <- directory/file paths, config loading
-              |  state.ts     | <- STATE.md read/write
-              |  types.ts     | <- all interfaces
-              +---------------+
-                      |
-                      v
-              [.delegate/]
++-------------------+
+|   commands/dg/    |
+|   bin/            |
++--------+----------+
+         |
+  +------v-------+
+  |    shared/    |
+  +--------------+
+  |  config.ts   | <- directory/file paths, config loading
+  |  state.ts    | <- STATE.md read/write
+  |  types.ts    | <- all interfaces
+  +--------------+
+         |
+         v
+  [.delegate/]
 ```
 
 ## Key Files

@@ -19,8 +19,8 @@ You execute ONE exploration type per iteration during study mode.
 
 | Iteration | Type | Focus |
 |-----------|------|-------|
-| 1, 6, 11... | **[T] Template** | Explore `.delegate/templates/` for patterns |
-| 2, 7, 12... | **[I] Introspect** | Analyze `src/` code for improvements |
+| 1, 6, 11... | **[T] Template** | Explore `.delegate/templates/` for patterns and features|
+| 2, 7, 12... | **[I] Introspect** | Analyze source code for improvements |
 | 3, 8, 13... | **[R] Research** | Search web for patterns (1 query, max 3 results) |
 | 4, 9, 14... | **[F] Reflect** | Review and update previous drafts with new insights |
 | 5, 10, 15... | **[V] Verify** | Run build/tests, create test files |
@@ -36,32 +36,33 @@ When you see a "Previous Sessions" section in your prompt:
 
 ## Session Theme
 
-**If THEME.md exists in the do plan folder, it guides ALL iterations.**
+**If THEME.md exists in the session folder, it guides ALL iterations.**
 
 The theme is NOT a one-time task - it's a lens for viewing ALL work:
 - [T] Look for theme-related patterns in templates
-- [I] Analyze src/ for theme-related concerns
+- [I] Analyze source code for theme-related concerns
 - [R] Search for theme-related best practices
 - [F] Reflect on drafts with theme-related insights
 - [V] Test theme-related functionality
 
 ## Type [T] - Template Exploration
 
-**Access:** `.delegate/templates/` and `src/` (read-only comparison)
+**Access:** `.delegate/templates/` and source code (read-only comparison)
 
 1. List files in `.delegate/templates/`
 2. If no templates exist -> FALLBACK to [I]
 3. Pick 1-2 files relevant to session theme
-4. Compare template to src/ implementation
+4. Compare template to source code implementation
 5. **If stale/irrelevant/redundant:** Fall back to [I], log as `[T->I]`
 6. **If useful:** Extract patterns, cite template file path
 
 ## Type [I] - Code Introspection
 
-**Access:** `src/` and `.arch/*.md`
+**Access:** source code and `.arch/*.md`
 
-1. Pick 2-3 source files from `src/`
-2. Read and analyze for patterns and improvements
+1. Read documentation, README.md, and source code
+2. Choose a feature/code module to study
+3. Read and analyze for patterns and improvements
 
 **What to look for:** Code duplication, missing error handling, inconsistent patterns, dead code, TODO comments, performance concerns.
 
@@ -69,15 +70,15 @@ The theme is NOT a one-time task - it's a lens for viewing ALL work:
 
 **Access:** WebSearch (1 query, max 3 results)
 
-1. Formulate ONE focused query based on theme/gaps
+1. Formulate ONE focused query based on theme/gaps and features defined in README.md or .arch/*.md
 2. Execute WebSearch
 3. Extract actionable insights, cite sources
 
 ## Type [F] - Reflect
 
-**Access:** Read/Write existing do draft files in the loop plan folder
+**Access:** Read/Write existing draft files in the loop_plan folder
 
-1. Read all existing do draft files (`{NN}-*.md`) in the current loop plan
+1. Read all existing draft files (`{NN}-*.md`) in the current session folder (last timestamp)
 2. Read ITERATIONS.md to review what has been discovered since those drafts were written
 3. Read `.delegate/loops/*/STATUS.md` to check what has been implemented since drafts were written
 4. For each existing draft, assess whether new insights from recent iterations invalidate, enhance, or refine it
@@ -115,9 +116,9 @@ Each iteration produces TWO outputs:
 - `{action}`: discover|connect|refine|design|reflect|research|analyze|verify|test|fallback
 - `{insight}`: ONE phrase, max 10 words
 
-### 2. Do Draft File
+### 2. Draft File
 
-Create `{loop_plan}/{NN}-{slug}.md` with:
+Create `{session_folder}/{NN}-{slug}.md` with:
 - Status section (type: plan, status: proposed)
 - Current Test Status (run npm test, document results)
 - Context (what you discovered)
@@ -129,18 +130,18 @@ Create `{loop_plan}/{NN}-{slug}.md` with:
 ## Before Each Iteration
 
 **MANDATORY:** Read existing context first:
-1. Read OVERVIEW.md from current do plan (if exists)
-2. Read existing do draft files (`{NN}-*.md`)
+1. Read OVERVIEW.md from current session folder (if exists)
+2. Read existing draft files (`{NN}-*.md`)
 3. Read `.delegate/loops/*/STATUS.md` for completed work
 
 This prevents duplicate work and builds on previous discoveries.
 
 ## Task Generation
 
-**Each iteration = 1 do draft**, except `[F] Reflect` which updates existing drafts instead of creating new ones.
+**Each iteration = 1 draft**, except `[F] Reflect` which updates existing drafts instead of creating new ones.
 
-**Iteration 1:** Create OVERVIEW.md with vision and first do entry.
-**All iterations:** Create `{NN}-{slug}.md` do draft, update OVERVIEW.md table.
+**Iteration 1:** Create OVERVIEW.md with vision and first draft entry.
+**All iterations:** Create `{NN}-{slug}.md` draft, update OVERVIEW.md table.
 
 ## Constraints
 
@@ -148,6 +149,6 @@ This prevents duplicate work and builds on previous discoveries.
 - [T] may fallback to [I] if templates stale/empty
 - [F] updates existing drafts, does not create new ones
 - Apply session theme to ALL iterations
-- Each iteration MUST produce a do draft
+- Each iteration MUST produce a draft
 - Be critical and specific - vague feedback is useless
 - Continue iterating until interrupted or max_iterations

@@ -33,8 +33,8 @@ Use these references:
 - \`commands/dg/init.md\`
 
 When asked to plan and implement work:
-1. Use the study workflow to propose loop plans in \`.delegate/loop_plans/\`.
-2. Use the do workflow to execute one loop at a time.
+1. Use the study workflow to propose drafts in \`.delegate/loop_plans/\`.
+2. Use the work workflow to implement loops in \`.delegate/loops/\`.
 `);
   console.log(`[delegate] Installed ${cmds} commands + ${agents} agents to ${skillDir}`);
 } else if (cmd === 'uninstall') {

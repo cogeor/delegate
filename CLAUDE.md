@@ -54,23 +54,20 @@ A loop is a focused unit of work that results in exactly one commit. Each loop h
 **Commands:**
 | Command | Purpose |
 |---------|---------|
-| `/dg:study [model] [theme]` | Study the codebase, propose loops |
-| `/dg:work [args]` | Implement one or more loops |
+| `/dg:study [model] [theme]` | Explore codebase, produce drafts in `.delegate/loop_plans/` |
+| `/dg:work [args]` | Implement loops in `.delegate/loops/` (plan, execute, test, commit) |
 
 **Workflow:**
-1. `/dg:study` — explores codebase, web, tests; produces loop drafts with acceptance criteria
-2. `/dg:work plan` — review proposed loops
-3. `/dg:work 02` or `/dg:work add logout button` — implement loops (plan, execute, test, commit each)
+1. `/dg:study` — explores codebase, web, tests; produces drafts with feature proposals, implementation plans, and test approaches
+2. `/dg:work plan` — review proposed drafts
+3. `/dg:work 02` or `/dg:work add logout button` — implement from drafts (plan, execute, test, commit each)
 
-Loop drafts live in `.delegate/loop_plans/`. Each draft includes acceptance tests that `/dg:work` uses to verify the implementation before committing.
+Study drafts live in `.delegate/loop_plans/`. When `/dg:work` executes a draft, it creates a full loop in `.delegate/loops/` with detailed plans, implementation records, and test results.
 
 ## Project Structure
 
 ```
-src/
-└── shared/          # Shared types and config
-
-commands/dg/         # Slash commands
+commands/dg/         # Slash commands (study, work, init)
 agents/              # Agent definitions
-bin/                 # CLI scripts
+bin/                 # CLI installer scripts
 ```

@@ -61,7 +61,7 @@ Generate documentation in this format:
 
 {Description of the type}
 
-```typescript
+```
 {type definition}
 ```
 
@@ -77,7 +77,7 @@ Generate documentation in this format:
 
 ## Usage Examples
 
-```typescript
+```
 {example code}
 ```
 
@@ -107,7 +107,7 @@ Generate documentation in this format:
 
 ## Constraints
 
-- Only document src/ files
+- Document files as specified by the orchestrator
 - One file per invocation
 - Don't modify source files
 

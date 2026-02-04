@@ -1,6 +1,6 @@
 ---
 name: dg:work
-description: Start a plan/implement/test loop from a plan draft or do plan (user)
+description: Start a plan/implement/test loop from a draft or prompt (user)
 allowed-tools:
   - Read
   - Write
@@ -31,12 +31,12 @@ Determine the execution mode from user input:
 |-------|------|--------|
 | `plan` (no more args) | summary | List unimplemented loops. NO execution. |
 | `plan <text>` | plan-only | Create plan, report for review. NO implementation. |
-| `<text>` | prompt | Create do plan, then execute full loop. |
+| `<text>` | prompt | Create plan, then execute full loop. |
 | (no args) | draft | Find `plan_draft.md`, execute loop. |
 | `path/to/draft.md` | draft | Use specified draft, execute loop. |
-| `06` or `06 07 08` | loops | Execute specific loops from active do plan. |
-| `06..10` | range | Execute loop range from active do plan. |
-| `--all` | all | Execute all pending loops from active do plan. |
+| `06` or `06 07 08` | loops | Execute specific loops from active plan. |
+| `06..10` | range | Execute loop range from active plan. |
+| `--all` | all | Execute all pending loops from active plan. |
 
 Detection rules:
 - First word is `plan` → summary (if no more args) or plan-only (rest is prompt)
@@ -49,14 +49,14 @@ Detection rules:
 
 ### Mode: summary
 
-1. List all do plans: `ls -d .delegate/loop_plans/*/`
+1. List all plans: `ls -d .delegate/loop_plans/*/`
 2. For each, find loops with status: pending or in_progress
 3. Display summary table
 4. **Stop. Do not execute anything.**
 
 ### Mode: plan-only
 
-1. Create do plan folder: `.delegate/loop_plans/{YYYYMMDD-HHMMSS}-{slug}/`
+1. Create plan folder: `.delegate/loop_plans/{YYYYMMDD-HHMMSS}-{slug}/`
 2. Analyze codebase, create DRAFT.md — everything after the `plan` keyword is the prompt, no quotes needed
 3. Spawn `dg-planner` → produces PLAN.md
 4. Analyze plan: complexity, risks, testability
@@ -65,7 +65,7 @@ Detection rules:
 
 ### Mode: prompt
 
-1. Create do plan folder: `.delegate/loop_plans/{YYYYMMDD-HHMMSS}-{slug}/`
+1. Create plan folder: `.delegate/loop_plans/{YYYYMMDD-HHMMSS}-{slug}/`
 2. Analyze codebase, create DRAFT.md — all args are joined as the prompt, no quotes needed
 3. Show plan to user, then proceed to **Execute Loop** (Step 3)
 
@@ -76,7 +76,7 @@ Detection rules:
 
 ### Mode: loops / range / all
 
-1. Find active do plan: `ls -td .delegate/loop_plans/*/ | head -1` (or use `--plan` path)
+1. Find active plan: `ls -td .delegate/loop_plans/*/ | head -1` (or use `--plan` path)
 2. Load LOOPS.yaml manifest
 3. Parse requested IDs (single, range, or all pending)
 4. Resolve dependencies — execute deps first
@@ -89,7 +89,7 @@ This is the core 3-phase pipeline. Follow it exactly.
 
 ### Phase 1: Plan
 
-1. Create loop folder: `.delegate/loops/{YYYYMMDD-HHMMSS}-{slug}/`
+1. Create loop folder: `.delegate/loops/{YYYYMMDD-HHMMSS}-{slug}/` (distinct from drafts in `loop_plans/`)
 2. Copy draft as `DRAFT.md`, create `STATUS.md` with `phase: planning`
 3. Spawn **dg-planner** agent:
    - Input: `{loop_folder}/DRAFT.md`, `.delegate/STATE.md`

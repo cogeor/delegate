@@ -24,13 +24,7 @@ mkdir -p .delegate/loops .delegate/loop_plans
 Check if `.delegate/config.json` exists. If not, create:
 
 ```json
-{
-  "docs": {
-    "enabled": true,
-    "patterns": ["src/**/*.ts", "src/**/*.tsx"],
-    "ignore": ["**/*.test.ts", "**/*.spec.ts", "**/types.ts"]
-  }
-}
+{}
 ```
 
 If config.json already exists, do NOT overwrite it.
@@ -60,15 +54,15 @@ This project uses the Delegate plugin for spec-driven development.
 **Commands:**
 | Command | Purpose |
 |---------|---------|
-| `/dg:study [model] [theme]` | Study the codebase, propose loops |
-| `/dg:work [args]` | Implement one or more loops |
+| `/dg:study [model] [theme]` | Explore codebase, produce drafts in `.delegate/loop_plans/` |
+| `/dg:work [args]` | Implement loops in `.delegate/loops/` (plan, execute, test, commit) |
 
 **Workflow:**
-1. `/dg:study` — explores codebase, web, tests; produces loop drafts with acceptance criteria
-2. `/dg:work plan` — review proposed loops
-3. `/dg:work 02` or `/dg:work add logout button` — implement loops (plan, execute, test, commit each)
+1. `/dg:study` — explores codebase, web, tests; produces drafts with feature proposals, implementation plans, and test approaches
+2. `/dg:work plan` — review proposed drafts
+3. `/dg:work 02` or `/dg:work add logout button` — implement from drafts (plan, execute, test, commit each)
 
-Loop drafts live in `.delegate/loop_plans/`. Each draft includes acceptance tests that `/dg:work` uses to verify the implementation before committing.
+Study drafts live in `.delegate/loop_plans/`. When `/dg:work` executes a draft, it creates a full loop in `.delegate/loops/` with detailed plans, implementation records, and test results.
 ```
 
 If no `AGENTS.md` exists, create one with a `# AGENTS.md` header and the above content.
@@ -82,5 +76,5 @@ Delegate Initialized
   .gitignore     {updated|already has .delegate/}
   AGENTS.md      {updated|already has delegate section}
 
-Next: /dg:study to explore, /dg:work to implement
+Next: /dg:study to explore and propose, /dg:work to implement
 ```

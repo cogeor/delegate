@@ -2,14 +2,13 @@
 
 ## Overview
 
-Claude Code plugin providing slash commands and specialized agents for the delegate workflow. Commands interact with the daemon via IPC; agents handle specific phases of the plan/implement/test loop.
+Claude Code plugin providing slash commands and specialized agents for the delegate workflow. Commands coordinate specialized agents for the plan/implement/test loop.
 
 ## Public API
 
 **Commands (dg namespace):**
-- `/dg:status` - Show daemon and plan mode status
-- `/dg:study [model] [theme]` - Enter continuous study mode
-- `/dg:work [args]` - Execute plan/implement/test loops
+- `/dg:study [model] [theme]` - Explore codebase, produce drafts in `loop_plans/`
+- `/dg:work [args]` - Implement loops in `loops/` (plan, execute, test, commit)
 - `/dg:init` - Initialize delegate in a project
 
 **Agents:**
@@ -29,30 +28,33 @@ Claude Code plugin providing slash commands and specialized agents for the deleg
                     +-------+--------+
                             |
          +------------------+------------------+
-         |          |           |              |
-    +----v----+ +---v---+ +----v----+  +------v------+
-    | status  | | plan  | |   do    |  |    init     |
-    +---------+ +-------+ +----+----+  +-------------+
-         |          |          |
-         |          |          v
-         |          |   +------+------+
-         |          |   |  planner    |
-         v          v   +------+------+
-    [.delegate/]               |
-         ^              +------+------+
-         |              |  executor   |
-         +------------->+------+------+
-                               |
-                        +------+------+
-                        |   tester    |
-                        +-------------+
+         |                  |                  |
+    +----v----+       +-----v-----+     +------v------+
+    |  study  |       |   work    |     |    init     |
+    +----+----+       +-----+-----+     +-------------+
+         |                  |
+         v                  v
+    dg-study-       +-------+-------+
+    planner         |   planner     |
+         |          +-------+-------+
+         v                  |
+    [loop_plans/]    +------+------+
+    (drafts)         |  executor   |
+                     +------+------+
+                            |
+                     +------+------+
+                     |   tester    |
+                     +------+------+
+                            |
+                            v
+                     [loops/]
+                     (implementations)
 ```
 
 ## Key Files
 
 | File | Purpose |
 |------|---------|
-| commands/dg/status.md | Displays daemon and plan status |
 | commands/dg/study.md | Starts continuous study mode |
 | commands/dg/work.md | Executes loops with dependency resolution |
 | commands/dg/init.md | Initializes delegate in a project |
@@ -64,6 +66,6 @@ Claude Code plugin providing slash commands and specialized agents for the deleg
 
 ## Dependencies
 
-**Inputs:** `.delegate/` (tasks, plan.state, daemon.status, templates), `../shared/types`
+**Inputs:** `.delegate/` (loop_plans, loops, plan.state, templates)
 
-**Outputs:** `.delegate/results/`, `.delegate/loops/*/`, `.delegate/loop_plans/*/`, git commits
+**Outputs:** `.delegate/loops/*/`, `.delegate/loop_plans/*/`, git commits
