@@ -32,6 +32,7 @@ agents/              # Agent definitions
 bin/                 # CLI installer scripts
 .claude-plugin/      # Plugin manifest
 src/shared/          # Internal TypeScript utilities (not part of plugin interface)
+.doc/                # Auto-generated per-file documentation
 ```
 
 ## State Directory (`.delegate/`)
@@ -43,9 +44,16 @@ src/shared/          # Internal TypeScript utilities (not part of plugin interfa
 ├── STATE.md         # Project state (focus, activity, next steps)
 ├── loops/           # Full loop implementations (created by /dg:work)
 ├── loop_plans/      # Study-generated drafts (proposals from /dg:study)
-├── templates/       # Loop templates (optional)
-└── docs/            # Generated documentation (optional, from dg-doc-generator)
+└── templates/       # Loop templates (optional)
 ```
+
+## Documentation Directory (`.doc/`)
+
+The `.doc/` directory lives at the project root (not inside `.delegate/`). It contains auto-generated per-file documentation produced by the `dg-doc-generator` agent.
+
+- Updated automatically after each loop commit as a non-blocking post-commit phase
+- Mirrors the source tree structure: `.doc/src/shared/README.md` documents `src/shared/`
+- Safe to delete and regenerate at any time
 
 ## Workflow
 

@@ -8,7 +8,7 @@ export const CONFIG_FILE = 'config.json';
 export const LOOPS_DIR = 'loops';
 export const LOOP_PLANS_DIR = 'loop_plans';
 export const TEMPLATES_DIR = 'templates';
-export const DOCS_DIR = 'docs';
+export const DOCS_DIR = '.doc';
 export const STATE_FILE = 'STATE.md';
 
 export function getDelegateDir(workspaceRoot: string): string {
@@ -117,7 +117,7 @@ Updated: ${status.updated}
  * Ensure docs directory exists
  */
 export function ensureDocsDir(workspaceRoot: string): string {
-  const docsDir = join(getDelegateDir(workspaceRoot), DOCS_DIR);
+  const docsDir = join(workspaceRoot, DOCS_DIR);
   if (!existsSync(docsDir)) {
     mkdirSync(docsDir, { recursive: true });
   }

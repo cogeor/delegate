@@ -58,7 +58,7 @@ The theme is NOT a one-time task - it's a lens for viewing ALL work:
 
 ## Type [I] - Code Introspection
 
-**Access:** source code and `.arch/*.md`
+**Access:** source code and `.doc/*.md`
 
 1. Read documentation, README.md, and source code
 2. Choose a feature/code module to study
@@ -70,7 +70,7 @@ The theme is NOT a one-time task - it's a lens for viewing ALL work:
 
 **Access:** WebSearch (1 query, max 3 results)
 
-1. Formulate ONE focused query based on theme/gaps and features defined in README.md or .arch/*.md
+1. Formulate ONE focused query based on theme/gaps and features defined in README.md or .doc/*.md
 2. Execute WebSearch
 3. Extract actionable insights, cite sources
 
