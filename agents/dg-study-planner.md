@@ -122,10 +122,12 @@ Create `{session_folder}/{NN}-{slug}.md` with:
 - Status section (type: plan, status: proposed)
 - Current Test Status (run npm test, document results)
 - Context (what you discovered)
-- Problem Statement (what this loop solves)
+- Problem Statement (what this draft addresses)
 - Objective (measurable outcome)
-- Implementation Spec (files to modify, steps)
+- Implementation Notes *(optional — only when referencing specific templates, search results, or concrete code references that add clarity)*
 - Acceptance Criteria (TESTABLE with verify commands)
+
+**Draft focus:** Describe *what* should be done and *why*, not *how*. Implementation planning is the job of `/dg:work`. Only include implementation notes when a specific reference (template path, search finding, existing pattern) would be lost without them.
 
 ## Before Each Iteration
 

@@ -95,7 +95,7 @@ Repeat until interrupted or max_iterations reached:
    - {sessionId} ({N} iter): {summary}
    ```
 
-4. Agent produces: one ITERATIONS.md row + one draft file (feature proposal, implementation plan, test approach)
+4. Agent produces: one ITERATIONS.md row + one draft file (feature proposal, improvement, or test approach)
 
 5. Increment iterations, update plan.state
 
