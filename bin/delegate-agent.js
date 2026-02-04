@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import { existsSync, mkdirSync, writeFileSync, readFileSync, readdirSync, copyFileSync, rmSync } from 'fs';
-import { join, dirname, resolve, basename } from 'path';
+import { existsSync, mkdirSync, writeFileSync, readdirSync, copyFileSync, rmSync } from 'fs';
+import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { homedir } from 'os';
 
@@ -12,42 +12,23 @@ const pluginRoot = resolve(__dirname, '..');
 const command = process.argv[2];
 const claudeDir = join(homedir(), '.claude');
 const codexDir = join(homedir(), '.codex');
-const cliName = basename(process.argv[1] || 'delegate-agent');
-const defaultTarget = cliName.includes('codex')
-  ? 'codex'
-  : cliName.includes('claude')
-    ? 'claude'
-    : null;
-const target = process.argv[3] || defaultTarget;
+const target = process.argv[3] || null;
 
 function printUsage() {
-  console.log(`${cliName} - install/uninstall the delegate plugin for coding agents
+  console.log(`delegate-agent - install/uninstall the delegate plugin for coding agents
 
 Usage:
-  ${cliName} install [target]    Install files for a target
-  ${cliName} uninstall [target]  Remove installed files for a target
-  ${cliName} path                Print the plugin root path
+  delegate-agent install <target>    Install files for a target
+  delegate-agent uninstall <target>  Remove installed files for a target
+  delegate-agent path                Print the plugin root path
 
 Targets:
-  claude (default for delegate-claude)
-  codex  (default for delegate-codex)
+  claude    Install to ~/.claude (commands + agents)
+  codex     Install to ~/.codex (skill)
 
-Notes:
-  delegate-agent requires an explicit target.
-  To install both, run twice:
-    delegate-agent install claude
-    delegate-agent install codex`);
-}
-
-function readSettings(settingsPath) {
-  if (existsSync(settingsPath)) {
-    try {
-      return JSON.parse(readFileSync(settingsPath, 'utf8'));
-    } catch {
-      return {};
-    }
-  }
-  return {};
+Examples:
+  delegate-agent install claude
+  delegate-agent install codex`);
 }
 
 function copyCommands(commandsDest) {
@@ -166,32 +147,6 @@ function uninstallClaude() {
     }
     if (count > 0) {
       console.log(`  [ok] Removed ${count} agents`);
-    }
-  }
-
-  const settingsPath = join(claudeDir, 'settings.json');
-  if (existsSync(settingsPath)) {
-    const settings = readSettings(settingsPath);
-
-    if (settings.hooks) {
-      let cleaned = false;
-      for (const event of Object.keys(settings.hooks)) {
-        const before = settings.hooks[event].length;
-        settings.hooks[event] = settings.hooks[event].filter(entry => {
-          if (entry.hooks && Array.isArray(entry.hooks)) {
-            return !entry.hooks.some(h => h.command && h.command.includes('delegate'));
-          }
-          return true;
-        });
-        if (settings.hooks[event].length < before) cleaned = true;
-        if (settings.hooks[event].length === 0) delete settings.hooks[event];
-      }
-      if (Object.keys(settings.hooks).length === 0) delete settings.hooks;
-
-      if (cleaned) {
-        writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n');
-        console.log('  [ok] Removed delegate hooks from settings');
-      }
     }
   }
 
