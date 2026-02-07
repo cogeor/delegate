@@ -3,13 +3,6 @@
   "version": "0.1.0",
   "description": "Spec-driven workflow orchestration for coding agents: separate study from do, execute loops, test, and commit cleanly",
   "type": "module",
-  "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "test": "echo \"no tests yet\"",
-    "prepare": "npm run build",
-    "prepublishOnly": "npm run build"
-  },
   "bin": {
     "delegate-claude": "./bin/delegate-claude.js",
     "delegate-codex": "./bin/delegate-codex.js"
@@ -18,17 +11,11 @@
     "node": ">=18.0.0"
   },
   "files": [
-    ".claude-plugin/",
     "commands/",
     "agents/",
-    "bin/",
-    "dist/"
+    "skills/",
+    "bin/"
   ],
-  "devDependencies": {
-    "@types/node": "^20.0.0",
-    "tsx": "^4.7.0",
-    "typescript": "^5.3.0"
-  },
   "author": "cogeor",
   "license": "MIT"
 }
