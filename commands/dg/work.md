@@ -108,10 +108,8 @@ For each task in PLAN.md:
 git add -A
 git commit -m "{type}({scope}): {description}
 
-Implements: {stump}/01"
+Implements: {stump}/{loop}"
 ```
-
-**No Co-Authored-By. User only.**
 
 #### 4f. Next Loop
 
