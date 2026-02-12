@@ -111,7 +111,13 @@ git commit -m "{type}({scope}): {description}
 Implements: {stump}/{loop}"
 ```
 
-#### 4f. Next Loop
+#### 4f. Document
+
+1. Spawn **work-doc-generator** with commit hash
+2. Generator updates `.delegate/doc/` for changed files
+3. Non-blocking — failures logged but don't stop pipeline
+
+#### 4g. Next Loop
 
 Continue to `02/`, `03/`, etc.
 
@@ -131,3 +137,4 @@ Loop 02: {summary} ✓ {commit-hash}
 | work-planner | loop summary | {N}/PLAN.md |
 | work-implementer | task from PLAN | {N}/IMPLEMENTATION.md |
 | work-tester | PLAN + IMPL | {N}/TEST.md |
+| work-doc-generator | commit hash | .delegate/doc/{path}.md |
