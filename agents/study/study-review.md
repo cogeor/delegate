@@ -104,3 +104,13 @@ Before writing:
 - ALWAYS produce TASK.md
 - Include build/test status
 - If no S/I/T files, analyze codebase directly
+
+## Status Return
+
+After writing TASK.md, return ONLY:
+
+```
+Wrote TASK.md to {stump}
+```
+
+Do NOT return findings or content to the orchestrator. The next agent reads from the file.
