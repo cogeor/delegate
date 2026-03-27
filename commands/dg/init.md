@@ -44,6 +44,7 @@ This project uses Delegate for spec-driven development.
 |---------|---------|
 | `/dg:study [model] [theme]` | SITR cycles → TASKs in `.delegate/study/` |
 | `/dg:work {stump}` | Execute TASK → loops in `.delegate/work/` |
+| `/dg:doc` | Generate/update project docs in `.delegate/doc/` |
 
 **Workflow:**
 1. `/dg:study auth` — explores codebase, produces TASK in `.delegate/study/{stump}/`

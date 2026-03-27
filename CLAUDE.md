@@ -14,6 +14,7 @@ Delegate is a coding-agent plugin for spec-driven development.
 |---------|---------|
 | `/dg:study [model] [theme]` | SITR cycles → TASKs in `.delegate/study/` |
 | `/dg:work {stump}` | Execute TASK → loops in `.delegate/work/` |
+| `/dg:doc` | Generate/update project docs in `.delegate/doc/` |
 
 ## Workflow
 
@@ -49,7 +50,7 @@ Delegate is a coding-agent plugin for spec-driven development.
 ## Project Structure
 
 ```
-commands/dg/         # Slash commands (study, work, init)
+commands/dg/         # Slash commands (study, work, init, doc)
 agents/study/        # Study agents (search, introspect, template, review)
 agents/work/         # Work agents (planner, implementer, tester, doc-generator)
 skills/              # Handoff formats (study-handoffs, work-handoffs)

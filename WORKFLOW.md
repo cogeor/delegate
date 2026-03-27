@@ -1,59 +1,61 @@
-# Loop-Based Workflow
+# Workflow
 
-Every implementation task is a loop. This is mandatory, not optional.
+Every implementation is a loop. One loop = one commit.
 
 ## Quick Reference
 
+```
+/dg:study auth
+  → .delegate/study/20240115-143022-auth/TASK.md
+
+/dg:work 20240115-143022-auth
+  → .delegate/work/20240115-143030-auth/01/
+  → git commit
+```
+
+## Study Phase
+
+SITR cycle produces a TASK:
+
+```
+.delegate/study/{stump}/
+├── S.md       # Search findings (optional)
+├── I.md       # Introspect findings (optional)
+├── T.md       # Template findings (optional)
+└── TASK.md    # Consolidated task (always)
+```
+
+S, I, T are optional based on theme. R (review) always runs.
+
+## Work Phase
+
+Each loop is a numbered subfolder:
+
+```
+.delegate/work/{stump}/
+├── TASK.md        # From study
+├── LOOPS.yaml     # Loop breakdown
+├── 01/
+│   ├── PLAN.md
+│   ├── IMPLEMENTATION.md
+│   └── TEST.md
+└── 02/
+    └── ...
+```
+
+### Loop Execution
+
+1. **Plan** — work-planner creates PLAN.md
+2. **Implement** — work-implementer executes tasks
+3. **Test** — work-tester verifies
+4. **Commit** — orchestrator commits
+
 ```bash
-1. mkdir .delegate/loops/{YYYYMMDD-HHMMSS}-{slug}
-2. Create DRAFT.md, STATUS.md
-3. Implement
-4. npm run build
-5. git add <src-files> && git commit
-6. Create COMMIT.md with hash
+git add -A
+git commit -m "{type}({scope}): {description}
+
+Implements: {stump}/01"
 ```
-
-## Phases
-
-### 1. Before Implementation
-
-Create loop folder: `.delegate/loops/{timestamp}-{slug}/`
-
-Create `DRAFT.md` with task description.
-
-Create `STATUS.md`:
-```markdown
-# Loop Status
-Started: {timestamp}
-Phase: implementing
-Updated: {timestamp}
-
-## Progress
-- [ ] Implementation
-- [ ] Verification
-- [ ] Commit
-```
-
-### 2. During Implementation
-
-- Update `STATUS.md` as you progress
-- Keep changes focused on one logical unit
-- Run tests frequently
-
-### 3. After Implementation
-
-1. Verify build: `npm run build`
-2. Create `IMPLEMENTATION.md` documenting what was done
-3. Commit (do NOT batch multiple loops):
-   ```bash
-   git add <changed-files>
-   # Do NOT add .delegate/
-   git commit -m "{type}({scope}): {description}
-
-   Implements: {loop-folder-name}"
-   ```
-4. Update `STATUS.md`: Phase -> complete
-5. Create `COMMIT.md` with commit hash
 
 ## Commit Message Format
 
@@ -61,44 +63,24 @@ Updated: {timestamp}
 
 **Example:**
 ```
-feat(study): add loop draft validation
+feat(cli): add --verbose flag
 
-- Add draft schema validation
-- Create validator utility
-- Integrate into study planner
-
-Implements: 20260201-193500-draft-validation
+Implements: 20240115-143030-verbose-flag/01
 ```
 
-**Required:** Always include `Implements: {loop-folder}` line.
+## Documentation
 
-## What NOT to Do
+```
+/dg:doc
+  → .delegate/doc/README.md          # Folder tree + last commit
+  → .delegate/doc/{path}/README.md   # Per-folder docs mirroring source
+```
 
-- Implement multiple features without committing between them
-- Skip creating the loop folder
-- Commit `.delegate/` artifacts with code changes
-- Forget to run `npm run build` before committing
+Incremental: only updates docs for files changed since last documented commit.
 
-## Why Loops?
+## Rules
 
-Loops make intent explicit, progress visible, and rollback safe. Each loop is timestamped and traceable through its artifacts:
-
-| File | Purpose | When Created |
-|------|---------|--------------|
-| `DRAFT.md` | Task description | Before starting |
-| `STATUS.md` | Progress tracking | Before starting |
-| `IMPLEMENTATION.md` | What was done | After implementation |
-| `COMMIT.md` | Commit reference | After committing |
-| `REFLECTION.md` | Value/quality assessment | Created during plan mode |
-
-## Loop Reflection
-
-After a loop completes, reflections are handled during plan mode iterations. The plan process reviews completed loops and generates REFLECTION.md files.
-
-Reflection assesses three dimensions (1-5 scale):
-
-| Dimension | Question |
-|-----------|----------|
-| **Value** | Did this add meaningful value? |
-| **Quality** | Is the implementation clean and maintainable? |
-| **Coverage** | Are critical paths tested? |
+- One loop = one commit
+- Never push (user does that)
+- Commit as user only (no Co-Authored-By)
+- `.delegate/` is gitignored

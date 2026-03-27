@@ -10,60 +10,71 @@ Delegate is a coding-agent plugin for spec-driven development. It provides slash
 
 | Command | Purpose |
 |---------|---------|
-| `/dg:study` | Explore codebase, propose implementation loops |
-| `/dg:work` | Implement loops (plan, execute, test, commit) |
+| `/dg:study` | SITR cycles → TASKs |
+| `/dg:work` | Execute TASKs → loops → commits |
 | `/dg:init` | Initialize delegate in a project |
+| `/dg:doc` | Generate/update project docs in `.delegate/doc/` |
 
-### Agents (`agents/`)
+### Agents
 
+**Study** (`agents/study/`):
 | Agent | Role |
 |-------|------|
-| dg-study-planner | Executes one exploration iteration per study cycle |
-| dg-planner | Creates detailed implementation plans from drafts |
-| dg-executor | Implements a single task from a plan |
-| dg-tester | Verifies implementation against plan, runs tests |
-| dg-doc-generator | Generates documentation for source files |
+| study-search | Web research, clone repos |
+| study-introspect | Analyze source code |
+| study-template | Explore templates |
+| study-review | Consolidate → TASK |
 
-## File Structure
+**Work** (`agents/work/`):
+| Agent | Role |
+|-------|------|
+| work-planner | TASK → LOOPS.yaml, loop → PLAN.md |
+| work-implementer | Execute tasks from PLAN.md |
+| work-tester | Verify implementation |
+| work-doc-generator | Generate docs post-commit |
+
+## Project Structure
 
 ```
-commands/dg/         # Slash commands (study, work, init)
-agents/              # Agent definitions
+commands/dg/         # Slash commands (init, study, work, doc)
+agents/study/        # Study agents
+agents/work/         # Work agents
+skills/              # Handoff formats
 bin/                 # CLI installer scripts
-.claude-plugin/      # Plugin manifest
-src/shared/          # Internal TypeScript utilities (not part of plugin interface)
-.doc/                # Auto-generated per-file documentation
 ```
 
 ## State Directory (`.delegate/`)
 
 ```
 .delegate/
-├── config.json      # Project configuration
-├── plan.state       # Current study mode state
-├── STATE.md         # Project state (focus, activity, next steps)
-├── loops/           # Full loop implementations (created by /dg:work)
-├── loop_plans/      # Study-generated drafts (proposals from /dg:study)
-└── templates/       # Loop templates (optional)
+├── study/           # Study outputs
+│   └── {stump}/     # One folder per SITR cycle
+│       ├── S.md     # Search (optional)
+│       ├── I.md     # Introspect (optional)
+│       ├── T.md     # Template (optional)
+│       └── TASK.md  # Review (always)
+├── work/            # Work outputs
+│   └── {stump}/     # One folder per task
+│       ├── TASK.md
+│       ├── LOOPS.yaml
+│       ├── 01/      # Loop 1
+│       └── 02/      # Loop 2
+├── templates/       # Cloned repos, patterns
+└── doc/             # Auto-generated docs
 ```
 
-## Documentation Directory (`.doc/`)
-
-The `.doc/` directory lives at the project root (not inside `.delegate/`). It contains auto-generated per-file documentation produced by the `dg-doc-generator` agent.
-
-- Updated automatically after each loop commit as a non-blocking post-commit phase
-- Mirrors the source tree structure: `.doc/src/shared/README.md` documents `src/shared/`
-- Safe to delete and regenerate at any time
+**Stump format:** `{YYYYMMDD-HHMMSS}-{slug}`
 
 ## Workflow
 
-1. **Study** (`/dg:study`) -- Explores codebase in 5-phase cycles [T]emplate, [I]ntrospect, [R]esearch, [F]lect, [V]erify. Produces drafts in `.delegate/loop_plans/` with feature proposals, implementation plans, and test approaches.
-2. **Work** (`/dg:work`) -- Implements loops through plan-execute-test-commit pipeline. Creates full loop records in `.delegate/loops/`. Each loop results in exactly one commit.
+1. **Study** (`/dg:study`) — SITR cycles: [S]earch, [I]ntrospect, [T]emplate, [R]eview. S/I/T optional based on theme, R always runs. Produces TASK.md.
+
+2. **Work** (`/dg:work {stump}`) — Reads TASK from study, breaks into loops, implements each, commits. One loop = one commit.
 
 ## Design Principles
 
-- **Commands-only** -- No background processes. Everything runs within the agent session.
-- **Provider-agnostic** -- Works with any coding agent (Claude Code, Codex, others).
-- **Loop-based** -- Every change is a loop: plan, implement, test, commit.
-- **Timestamp everything** -- Loop folders use YYYYMMDD-HHMMSS-slug naming.
-- **File-based state** -- All state in `.delegate/` as readable files.
+- **Commands-only** — No background processes
+- **Provider-agnostic** — Works with any coding agent
+- **Loop-based** — Every change is a loop: plan, implement, test, commit
+- **File-based state** — All state in `.delegate/` as readable files
+- **Stump-based linking** — Study and work linked by stump identifier

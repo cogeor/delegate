@@ -35,6 +35,7 @@ A coding-agent plugin for spec-driven development. Splits work into two phases: 
 | `/dg:work {stump}` | Execute study TASK → loops → commits |
 | `/dg:work plan {prompt}` | Plan only, no execution |
 | `/dg:work {prompt}` | Plan + execute from prompt |
+| `/dg:doc` | Generate/update project docs in `.delegate/doc/` |
 
 **Examples:** `/dg:study` (5 cycles default), `/dg:study 10`, `/dg:study opus 3 auth`
 
