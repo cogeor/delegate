@@ -1,30 +1,14 @@
 #!/usr/bin/env node
 
-import { existsSync, mkdirSync, writeFileSync, readdirSync, copyFileSync, rmSync, statSync } from 'fs';
+import { existsSync, writeFileSync, rmSync } from 'fs';
 import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { homedir } from 'os';
+import { copyDir } from './lib/copy.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const skillDir = join(homedir(), '.codex', 'skills', 'delegate');
 const cmd = process.argv[2];
-
-function copyDir(src, dest) {
-  if (!existsSync(src)) return 0;
-  mkdirSync(dest, { recursive: true });
-  let count = 0;
-  for (const entry of readdirSync(src)) {
-    const srcPath = join(src, entry);
-    const destPath = join(dest, entry);
-    if (statSync(srcPath).isDirectory()) {
-      count += copyDir(srcPath, destPath);
-    } else if (entry.endsWith('.md')) {
-      copyFileSync(srcPath, destPath);
-      count++;
-    }
-  }
-  return count;
-}
 
 if (cmd === 'install') {
   if (existsSync(skillDir)) rmSync(skillDir, { recursive: true });

@@ -4,27 +4,11 @@ import { existsSync, mkdirSync, readdirSync, copyFileSync, rmSync, statSync } fr
 import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { homedir } from 'os';
+import { copyDir } from './lib/copy.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const claude = join(homedir(), '.claude');
 const cmd = process.argv[2];
-
-function copyDir(src, dest) {
-  if (!existsSync(src)) return 0;
-  mkdirSync(dest, { recursive: true });
-  let count = 0;
-  for (const entry of readdirSync(src)) {
-    const srcPath = join(src, entry);
-    const destPath = join(dest, entry);
-    if (statSync(srcPath).isDirectory()) {
-      count += copyDir(srcPath, destPath);
-    } else if (entry.endsWith('.md')) {
-      copyFileSync(srcPath, destPath);
-      count++;
-    }
-  }
-  return count;
-}
 
 function copySkills(src, dest) {
   if (!existsSync(src)) return 0;
@@ -94,8 +78,12 @@ if (cmd === 'install') {
   // Agents
   const agentDir = join(claude, 'agents');
   if (existsSync(agentDir)) {
-    rmSync(join(agentDir, 'study'), { recursive: true, force: true });
-    rmSync(join(agentDir, 'work'), { recursive: true, force: true });
+    const agentSrc = join(root, 'agents');
+    for (const entry of readdirSync(agentSrc)) {
+      if (statSync(join(agentSrc, entry)).isDirectory()) {
+        rmSync(join(agentDir, entry), { recursive: true, force: true });
+      }
+    }
   }
 
   // Skills
