@@ -1,6 +1,6 @@
 # Delegate
 
-A coding-agent plugin for spec-driven development. Splits work into two phases: **study** (explore and specify) and **work** (plan, implement, test). Work is done in loops, each handled by a seperate sub-agent, in parallel when possible. Delegate will split work into modular testable work packages, document, test, and commit them automatically when implemented.
+A coding-agent plugin for spec-driven development. Splits work into two phases: **study** (explore and specify) and **work** (plan, implement, test). Work is done in loops, each handled by a separate sub-agent. Delegate will split work into modular testable work packages, document, test, and commit them automatically when implemented.
 
 **~1650 lines of markdown.** As minimal as possible.
 
@@ -64,18 +64,17 @@ Study is composed of four phases, three optional:
 ## Work Cycle: Loops
 
 The work phase splits tasks from study sessions or user prompts into loops, which represent units of testable work. Each loop = one commit.
-Loops are implemented in parallel when possible.
 
 ```
 TASK.md → LOOPS.yaml → Loop 01 → Loop 02 → ...
                           │
-                    ┌─────┴─────┐
-                    │  PLAN.md  │  ← what to do
-                    │  IMPL.md  │  ← what was done
-                    │  TEST.md  │  ← verification
-                    └─────┬─────┘
-                          │
-                     git commit
+                    ┌──────────────────────┐
+                    │  PLAN.md             │  ← what to do
+                    │  IMPLEMENTATION.md   │  ← what was done
+                    │  TEST.md             │  ← verification
+                    └──────────┬───────────┘
+                               │
+                          git commit
 ```
 
 **Four specialized agents:**
