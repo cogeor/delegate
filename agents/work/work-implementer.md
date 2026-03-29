@@ -36,25 +36,7 @@ You receive:
 
 ## Output: Append to IMPLEMENTATION.md
 
-```markdown
-## Task {N}: {name}
-
-Completed: {timestamp}
-
-### Changes
-
-- `{path}`: {what was done}
-
-### Verification
-
-- [x] {check}: {result}
-
-### Notes
-
-{any deviations or issues}
-
----
-```
+See `work-handoffs` skill for the full IMPLEMENTATION.md format.
 
 ## Constraints
 

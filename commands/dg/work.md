@@ -100,7 +100,7 @@ For each task in PLAN.md:
 
 1. Spawn **work-tester**
 2. Writes `01/TEST.md`
-3. If "Ready for Commit: no" → fail, stop
+3. If commit gate is not ready → see ## Recovery
 
 #### 4e. Commit
 
@@ -128,6 +128,23 @@ Task: {stump}
 Loop 01: {summary} ✓ {commit-hash}
 Loop 02: {summary} ✓ {commit-hash}
 ```
+
+## Recovery
+
+When a loop's TEST.md commit gate returns `ready: no`:
+
+1. **Surface to user** — report the failure and print the path to the TEST.md file:
+   ```
+   Loop {id} failed commit gate.
+   Review: .delegate/work/{stump}/{id}/TEST.md
+   Reason: {reason field from Commit Gate}
+   ```
+2. **Loop folder is incomplete** — the folder contains PLAN.md and IMPLEMENTATION.md but the loop has NOT been committed. Do not advance to the next loop.
+3. **Retry path** — the user may:
+   - Spawn work-implementer again to fix the failing task, then re-run work-tester.
+   - Edit PLAN.md to revise scope, then re-implement and re-test.
+   - Abandon the loop by deleting the loop folder and revising LOOPS.yaml.
+4. **Subsequent loops** — loops that depend_on the failed loop must not run until the failed loop passes its commit gate.
 
 ## Agents
 

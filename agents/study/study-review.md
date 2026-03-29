@@ -56,40 +56,7 @@ Write `{stump}/TASK.md`
 
 ## Output: {stump}/TASK.md
 
-```markdown
-# TASK: {title}
-
-Created: {timestamp}
-Build: {OK|FAIL}
-Tests: {pass}/{total}
-
-## Summary
-
-{1-2 sentence description}
-
-## Context
-
-{Consolidated from phases that ran}
-
-Sources:
-- [S] {if S.md existed}: {key finding}
-- [I] {if I.md existed}: {key finding}
-- [T] {if T.md existed}: {key finding}
-
-## Objective
-
-{Clear, measurable outcome}
-
-## Scope
-
-- `{path}`: {change}
-
-## Acceptance Criteria
-
-- [ ] {criterion}
-- [ ] Build passes
-- [ ] Tests pass
-```
+See `study-handoffs` skill for the full TASK.md format.
 
 ## Quality Checklist
 

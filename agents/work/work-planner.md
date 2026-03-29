@@ -38,16 +38,7 @@ Break TASK into commit-sized loops.
 - Single logical unit
 - In doubt → fewer loops
 
-```yaml
-loops:
-  - id: 01
-    summary: {one line}
-    status: pending
-  - id: 02
-    summary: {one line}
-    depends_on: [01]
-    status: pending
-```
+See `work-handoffs` skill for LOOPS.yaml format.
 
 ### Context 2: Loop → PLAN.md
 
@@ -61,38 +52,7 @@ Detail one loop into implementation tasks.
 2. Read files that will change
 3. Check existing patterns
 
-```markdown
-# Loop {id}: {summary}
-
-## Overview
-
-{what this loop accomplishes}
-
-## Tasks
-
-### Task 1: {name}
-
-**Goal:** {what to do}
-
-**Files:**
-| Action | Path |
-|--------|------|
-| MODIFY | `{path}` |
-| CREATE | `{path}` |
-
-**Steps:**
-1. {step}
-2. {step}
-
-**Verify:** {command or check}
-
-### Task 2: {name}
-...
-
-## Acceptance Criteria
-
-- [ ] {criterion}
-```
+See `work-handoffs` skill for PLAN.md format.
 
 ## Constraints
 

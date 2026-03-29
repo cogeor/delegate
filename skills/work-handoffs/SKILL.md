@@ -159,10 +159,11 @@ Status: PASS | FAIL
 - Build: {OK|FAIL}
 - Tests: {pass}/{total}
 
----
+## Commit Gate
 
-Ready for Commit: yes | no
-Commit Message: {type}({scope}): {description}
+ready: yes | no
+reason: {why ready or why not}
+commit-message: {type}({scope}): {description}
 ```
 
 ## Workflow

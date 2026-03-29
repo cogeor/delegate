@@ -111,6 +111,11 @@ Tests: {pass}/{total}
 
 {Consolidated from S/I/T — cite which phases ran}
 
+Sources:
+- [S] {if S.md existed}: {key finding}
+- [I] {if I.md existed}: {key finding}
+- [T] {if T.md existed}: {key finding}
+
 ## Objective
 
 {Clear, measurable outcome}

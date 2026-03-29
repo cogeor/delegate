@@ -43,43 +43,17 @@ Flag if:
 
 ## Output: {loop-folder}/TEST.md
 
-```markdown
-# Test Results
-
-Tested: {timestamp}
-Status: PASS | FAIL
-
-## Task Verification
-
-- [x] Task 1: {result}
-- [x] Task 2: {result}
-
-## Acceptance Criteria
-
-- [x] {criterion}: {result}
-
-## Build & Tests
-
-- Build: {OK|FAIL}
-- Tests: {pass}/{total}
-
-## Scope Check
-
-- [x] Single logical purpose
-
----
-
-Ready for Commit: yes | no
-Commit Message: {type}({scope}): {description}
-```
+See `work-handoffs` skill for the full TEST.md format.
 
 ## Commit Readiness
 
-"Ready for Commit: yes" ONLY when:
+Write `ready: yes` in `## Commit Gate` ONLY when:
 1. All tasks completed
 2. All criteria pass
 3. Build/tests pass
 4. Scope check passes
+
+Otherwise write `ready: no` and set `reason:` to a one-sentence explanation.
 
 ## Constraints
 
